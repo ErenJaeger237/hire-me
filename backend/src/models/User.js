@@ -24,7 +24,7 @@ const User = sequelize.define('User', {
     allowNull: false,
   },
   role: {
-    type: DataTypes.ENUM('CLIENT', 'PROVIDER'),
+    type: DataTypes.ENUM('CLIENT', 'PROVIDER', 'ADMIN'),
     allowNull: false,
   },
   phone_number: {
@@ -38,6 +38,10 @@ const User = sequelize.define('User', {
   location_text: {
     type: DataTypes.STRING(255),
     allowNull: true,
+  },
+  wallet_balance: {
+    type: DataTypes.INTEGER,
+    defaultValue: 0,
   },
   location_lat: {
     type: DataTypes.FLOAT,

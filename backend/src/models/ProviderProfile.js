@@ -32,6 +32,14 @@ const ProviderProfile = sequelize.define('ProviderProfile', {
     type: DataTypes.STRING(500),
     allowNull: true,
   },
+  is_verified: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
+  },
+  verification_doc_url: {
+    type: DataTypes.STRING(500),
+    allowNull: true,
+  },
 }, {
   tableName: 'provider_profiles',
   timestamps: true,

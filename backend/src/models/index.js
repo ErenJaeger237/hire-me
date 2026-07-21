@@ -3,6 +3,7 @@ const User = require('./User');
 const ProviderProfile = require('./ProviderProfile');
 const Booking = require('./Booking');
 const Message = require('./Message');
+const Transaction = require('./Transaction');
 
 // Associations
 User.hasOne(ProviderProfile, { foreignKey: 'user_id', as: 'profile', onDelete: 'CASCADE' });
@@ -20,6 +21,9 @@ Message.belongsTo(Booking, { foreignKey: 'booking_id', as: 'booking' });
 User.hasMany(Message, { foreignKey: 'sender_id', as: 'sentMessages' });
 Message.belongsTo(User, { foreignKey: 'sender_id', as: 'sender' });
 
+User.hasMany(Transaction, { foreignKey: 'user_id', as: 'transactions' });
+Transaction.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
+
 module.exports = {
   sequelize,
   ensureDatabaseExists,
@@ -27,4 +31,5 @@ module.exports = {
   ProviderProfile,
   Booking,
   Message,
+  Transaction,
 };
