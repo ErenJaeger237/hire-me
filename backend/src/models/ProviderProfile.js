@@ -28,6 +28,10 @@ const ProviderProfile = sequelize.define('ProviderProfile', {
     type: DataTypes.DECIMAL(3, 2),
     defaultValue: 5.0,
   },
+  resume_url: {
+    type: DataTypes.STRING(500),
+    allowNull: true,
+  },
 }, {
   tableName: 'provider_profiles',
   timestamps: true,

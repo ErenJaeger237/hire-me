@@ -7,6 +7,8 @@ const { register, login } = require('./controllers/authController');
 const { getProviders } = require('./controllers/providerController');
 const { createBooking, getBookings, updateBookingStatus, addReview } = require('./controllers/bookingController');
 const { authenticateToken } = require('./middleware/authMiddleware');
+const { getProfile, updateProfile } = require('./controllers/userController');
+const { getMessages, sendMessage } = require('./controllers/messageController');
 const setupSwagger = require('./config/swagger');
 const bcrypt = require('bcryptjs');
 
@@ -151,6 +153,14 @@ app.get('/api/bookings', authenticateToken, getBookings);
  */
 app.patch('/api/bookings/:id', authenticateToken, updateBookingStatus);
 app.post('/api/bookings/:id/review', authenticateToken, addReview);
+
+// User Profile routes
+app.get('/api/users/profile', authenticateToken, getProfile);
+app.put('/api/users/profile', authenticateToken, updateProfile);
+
+// Chat / Messages routes
+app.get('/api/bookings/:bookingId/messages', authenticateToken, getMessages);
+app.post('/api/bookings/:bookingId/messages', authenticateToken, sendMessage);
 
 // Seed database function
 async function seedDefaultData() {
