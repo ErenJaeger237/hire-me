@@ -1,0 +1,14 @@
+# Ignore all markdown and planning files except README.md
+*.md
+!README.md
+implementation_plan2
+
+# Ignore all actual code files in backend and frontend to preserve skeleton structure
+/backend/*
+!/backend/.gitkeep
+/frontend/*
+!/frontend/.gitkeep
+
+# Standard node ignores just in case
+node_modules/
+.env
