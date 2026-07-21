@@ -3,20 +3,72 @@ const cors = require('cors');
 require('dotenv').config();
 
 const { sequelize, ensureDatabaseExists, User, ProviderProfile, Booking } = require('./models');
-const { register, login } = require('./controllers/authController');
-const { getProviders } = require('./controllers/providerController');
-const { createBooking, getBookings, updateBookingStatus, addReview } = require('./controllers/bookingController');
+const authController = require('./controllers/authController');
+const providerController = require('./controllers/providerController');
+const bookingController = require('./controllers/bookingController');
 const { authenticateToken } = require('./middleware/authMiddleware');
-const { getProfile, updateProfile } = require('./controllers/userController');
-const { getMessages, sendMessage } = require('./controllers/messageController');
+const userController = require('./controllers/userController');
+const messageController = require('./controllers/messageController');
 const setupSwagger = require('./config/swagger');
 const bcrypt = require('bcryptjs');
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const http = require('http');
+const { Server } = require('socket.io');
+const server = http.createServer(app);
 
+const io = new Server(server, {
+  cors: {
+    origin: '*', // Allow all origins for easier deployment, restrict later
+    credentials: true,
+    methods: ['GET', 'POST']
+  }
+});
+
+app.set('io', io); // Make io accessible in controllers
+
+io.on('connection', (socket) => {
+  console.log('A user connected to socket:', socket.id);
+
+  socket.on('join_booking', (bookingId) => {
+    socket.join(`booking_${bookingId}`);
+    console.log(`User ${socket.id} joined room: booking_${bookingId}`);
+  });
+
+  socket.on('disconnect', () => {
+    console.log('User disconnected:', socket.id);
+  });
+});
+const PORT = process.env.PORT || 5000;
+const path = require('path');
+const multer = require('multer');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, path.join(__dirname, '../public/uploads'));
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, req.user.id + '-' + uniqueSuffix + path.extname(file.originalname));
+  }
+});
+const upload = multer({ storage });
+
+// Security Middleware
+app.use(helmet({ crossOriginResourcePolicy: false })); // allows serving images cross-origin
 app.use(cors());
 app.use(express.json());
+
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // limit each IP to 100 requests per windowMs
+  message: { error: 'Too many requests, please try again later.' }
+});
+app.use('/api/', apiLimiter);
+
+app.use('/uploads', express.static(path.join(__dirname, '../public/uploads')));
 
 // Setup Swagger UI
 setupSwagger(app);
@@ -46,7 +98,7 @@ setupSwagger(app);
  *       201:
  *         description: Created
  */
-app.post('/api/auth/register', register);
+app.post('/api/auth/register', authController.register);
 
 /**
  * @openapi
@@ -68,7 +120,7 @@ app.post('/api/auth/register', register);
  *       200:
  *         description: OK
  */
-app.post('/api/auth/login', login);
+app.post('/api/auth/login', authController.login);
 
 /**
  * @openapi
@@ -89,7 +141,7 @@ app.post('/api/auth/login', login);
  *       200:
  *         description: Array of provider profiles
  */
-app.get('/api/providers', getProviders);
+app.get('/api/providers', providerController.getProviders);
 
 /**
  * @openapi
@@ -122,8 +174,8 @@ app.get('/api/providers', getProviders);
  *       200:
  *         description: List of user bookings
  */
-app.post('/api/bookings', authenticateToken, createBooking);
-app.get('/api/bookings', authenticateToken, getBookings);
+app.post('/api/bookings', authenticateToken, bookingController.createBooking);
+app.get('/api/bookings', authenticateToken, bookingController.getBookings);
 
 /**
  * @openapi
@@ -151,64 +203,123 @@ app.get('/api/bookings', authenticateToken, getBookings);
  *       200:
  *         description: Status updated
  */
-app.patch('/api/bookings/:id', authenticateToken, updateBookingStatus);
-app.post('/api/bookings/:id/review', authenticateToken, addReview);
+app.patch('/api/bookings/:id', authenticateToken, bookingController.updateBookingStatus);
+app.post('/api/bookings/:id/review', authenticateToken, bookingController.addReview);
 
 // User Profile routes
-app.get('/api/users/profile', authenticateToken, getProfile);
-app.put('/api/users/profile', authenticateToken, updateProfile);
+app.get('/api/users/profile', authenticateToken, userController.getProfile);
+app.put('/api/users/profile', authenticateToken, userController.updateProfile);
+app.get('/api/users/notifications', authenticateToken, userController.getNotifications);
 
-// Chat / Messages routes
-app.get('/api/bookings/:bookingId/messages', authenticateToken, getMessages);
-app.post('/api/bookings/:bookingId/messages', authenticateToken, sendMessage);
+app.post('/api/users/profile/upload', authenticateToken, upload.single('profile_picture'), async (req, res) => {
+  try {
+    if (!req.file) return res.status(400).json({ error: 'No file uploaded.' });
+    
+    // Construct the URL
+    const fileUrl = `http://localhost:${PORT}/uploads/${req.file.filename}`;
+    
+    // Update the user
+    await User.update({ profile_picture_url: fileUrl }, { where: { id: req.user.id } });
+    
+    return res.status(200).json({ profile_picture_url: fileUrl });
+  } catch (err) {
+    console.error('File upload error:', err);
+    return res.status(500).json({ error: 'Failed to upload profile picture.' });
+  }
+});
+
+app.post('/api/users/profile/document', authenticateToken, upload.single('verification_doc'), async (req, res) => {
+  try {
+    if (!req.file) return res.status(400).json({ error: 'No file uploaded.' });
+    const fileUrl = `http://localhost:${PORT}/uploads/${req.file.filename}`;
+    await ProviderProfile.update({ verification_doc_url: fileUrl }, { where: { user_id: req.user.id } });
+    return res.status(200).json({ verification_doc_url: fileUrl });
+  } catch (err) {
+    console.error('File upload error:', err);
+    return res.status(500).json({ error: 'Failed to upload document.' });
+  }
+});
+app.get('/api/bookings/:bookingId/messages', authenticateToken, messageController.getMessages);
+app.post('/api/bookings/:bookingId/messages', authenticateToken, messageController.sendMessage);
+
+const adminController = require('./controllers/adminController');
+app.get('/api/admin/analytics', authenticateToken, adminController.getAnalytics);
+app.get('/api/admin/users', authenticateToken, adminController.getUsers);
+app.get('/api/admin/providers', authenticateToken, adminController.getProviders);
+app.patch('/api/admin/providers/:id/verify', authenticateToken, adminController.verifyProvider);
+
+const walletController = require('./controllers/walletController');
+app.get('/api/wallet/balance', authenticateToken, walletController.getBalance);
+app.post('/api/wallet/topup', authenticateToken, walletController.topUp);
+app.get('/api/wallet/history', authenticateToken, walletController.getHistory);
 
 // Seed database function
 async function seedDefaultData() {
-  const userCount = await User.count();
-  if (userCount === 0) {
-    console.log('[Seed] Database is empty. Creating initial seed users...');
-    const salt = await bcrypt.genSalt(10);
-    const passHash = await bcrypt.hash('password123', salt);
-
-    const client = await User.create({
-      name: 'Alice Johnson',
-      email: 'client@example.com',
-      password_hash: passHash,
-      role: 'CLIENT',
-    });
-
-    const providersData = [
-      { name: 'Dr. Marcus Vance', email: 'marcus@example.com', trade: 'Math Tutor', hourly_rate: 45.0, bio: 'PhD in Mathematics. 8+ years experience tutoring calculus and algebra.', rating: 4.9 },
-      { name: 'Elena Rostova', email: 'elena@example.com', trade: 'Electrician', hourly_rate: 60.0, bio: 'Certified master electrician specializing in home rewiring and solar power.', rating: 4.8 },
-      { name: 'David Miller', email: 'david@example.com', trade: 'Plumber', hourly_rate: 50.0, bio: 'Expert emergency plumbing, pipe installation, and leak detection.', rating: 4.7 },
-      { name: 'Sarah Jenkins', email: 'sarah@example.com', trade: 'English Tutor', hourly_rate: 35.0, bio: 'IELTS coach and academic writing specialist for all levels.', rating: 5.0 },
-    ];
-
-    for (const p of providersData) {
-      const pUser = await User.create({
-        name: p.name,
-        email: p.email,
-        password_hash: passHash,
-        role: 'PROVIDER',
-      });
-      const profile = await ProviderProfile.create({
-        user_id: pUser.id,
-        trade: p.trade,
-        hourly_rate: p.hourly_rate,
-        bio: p.bio,
-        rating: p.rating,
+  try {
+    const userCount = await User.count();
+    if (userCount === 0) {
+      console.log('Seeding default users and providers...');
+      
+      const password_hash = await bcrypt.hash('password123', 10);
+      
+      // Seed Admin
+      await User.create({
+        name: 'System Admin',
+        email: 'admin@hireme.cm',
+        password_hash,
+        role: 'ADMIN',
       });
 
-      // Sample booking
-      await Booking.create({
-        client_id: client.id,
-        provider_id: profile.id,
-        job_date: new Date(Date.now() + 86400000 * 2),
-        description: `Initial consultation for ${p.trade} services.`,
-        status: 'PENDING',
+      // Seed Client
+      const client = await User.create({
+        name: 'Franck Ateba',
+        email: 'client@example.com',
+        password_hash,
+        role: 'CLIENT',
+        location_lat: 4.0511,
+        location_lng: 9.7085, // Douala
       });
+
+      const providersData = [
+        { name: 'Dr. Amadou Diallo', email: 'amadou@example.com', trade: 'Math Tutor', hourly_rate: 5000, bio: 'PhD in Mathematics. 8+ years experience tutoring calculus and algebra.', rating: 4.9 },
+        { name: 'Chantal Biya', email: 'chantal@example.com', trade: 'Electrician', hourly_rate: 10000, bio: 'Certified master electrician specializing in home rewiring and solar power.', rating: 4.8 },
+        { name: 'Samuel Eto', email: 'samuel@example.com', trade: 'Plumber', hourly_rate: 7500, bio: 'Expert emergency plumbing, pipe installation, and leak detection.', rating: 4.7 },
+        { name: 'Nathalie Makon', email: 'nathalie@example.com', trade: 'English Tutor', hourly_rate: 4000, bio: 'IELTS coach and academic writing specialist for all levels.', rating: 5.0 },
+      ];
+
+      for (const p of providersData) {
+        const pUser = await User.create({
+          name: p.name,
+          email: p.email,
+          password_hash,
+          role: 'PROVIDER',
+          location_lat: 4.05 + (Math.random() * 0.05),
+          location_lng: 9.70 + (Math.random() * 0.05),
+        });
+
+        const profile = await ProviderProfile.create({
+          user_id: pUser.id,
+          trade: p.trade,
+          hourly_rate: p.hourly_rate,
+          bio: p.bio,
+          rating: p.rating,
+          is_verified: true,
+        });
+
+        // Sample booking
+        await Booking.create({
+          client_id: client.id,
+          provider_id: profile.id,
+          job_date: new Date(Date.now() + 86400000 * 2),
+          description: `Initial consultation for ${p.trade} services.`,
+          status: 'PENDING',
+        });
+      }
+      
+      console.log('Database seeded successfully.');
     }
-    console.log('[Seed] Seed data successfully populated!');
+  } catch (err) {
+    console.error('Failed to seed DB:', err);
   }
 }
 
@@ -222,7 +333,7 @@ async function startServer() {
     console.error('[Database Error] Connection failed:', err.message);
   }
 
-  app.listen(PORT, () => {
+  server.listen(PORT, () => {
     console.log(`[Server] Hire Me Express API listening on http://localhost:${PORT}`);
   });
 }
@@ -231,4 +342,4 @@ if (process.env.NODE_ENV !== 'test') {
   startServer();
 }
 
-module.exports = app;
+module.exports = { app, server };

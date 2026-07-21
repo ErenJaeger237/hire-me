@@ -1,86 +1,40 @@
-const { Message, Booking, User, ProviderProfile } = require('../models');
-const { Op } = require('sequelize');
+const messageService = require('../services/MessageService');
+const { sendMessageSchema } = require('../validators/messageValidator');
 
-const getMessages = async (req, res) => {
-  try {
-    const { bookingId } = req.params;
-    
-    // Verify booking and access
-    const booking = await Booking.findByPk(bookingId, {
-      include: [
-        { model: ProviderProfile, as: 'provider' }
-      ]
-    });
-
-    if (!booking) return res.status(404).json({ error: 'Booking not found' });
-    
-    const isClient = booking.client_id === req.user.userId;
-    const isProvider = booking.provider.user_id === req.user.userId;
-
-    if (!isClient && !isProvider) {
-      return res.status(403).json({ error: 'Unauthorized to view these messages' });
+class MessageController {
+  async getMessages(req, res) {
+    try {
+      const { bookingId } = req.params;
+      const result = await messageService.getMessages(req.user.id, bookingId);
+      res.json(result);
+    } catch (error) {
+      console.error(error);
+      res.status(error.statusCode || 500).json({ error: error.message || 'Failed to fetch messages' });
     }
-
-    if (booking.status !== 'ACCEPTED' && booking.status !== 'COMPLETED') {
-      return res.status(400).json({ error: 'Messaging is only available for accepted or completed bookings.' });
-    }
-
-    const messages = await Message.findAll({
-      where: { booking_id: bookingId },
-      order: [['createdAt', 'ASC']],
-      include: [
-        { model: User, as: 'sender', attributes: ['id', 'name', 'profile_picture_url'] }
-      ]
-    });
-
-    res.json(messages);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Failed to fetch messages' });
   }
-};
 
-const sendMessage = async (req, res) => {
-  try {
-    const { bookingId } = req.params;
-    const { content } = req.body;
-
-    if (!content) return res.status(400).json({ error: 'Content is required' });
-
-    // Verify booking and access
-    const booking = await Booking.findByPk(bookingId, {
-      include: [
-        { model: ProviderProfile, as: 'provider' }
-      ]
-    });
-
-    if (!booking) return res.status(404).json({ error: 'Booking not found' });
-    
-    const isClient = booking.client_id === req.user.userId;
-    const isProvider = booking.provider.user_id === req.user.userId;
-
-    if (!isClient && !isProvider) {
-      return res.status(403).json({ error: 'Unauthorized to send messages for this booking' });
+  async sendMessage(req, res) {
+    try {
+      const { bookingId } = req.params;
+      const validatedData = sendMessageSchema.parse(req.body);
+      const result = await messageService.sendMessage(req.user.id, bookingId, validatedData.content);
+      
+      const io = req.app.get('io');
+      if (io) {
+        // We emit the new message to everyone in the room except the sender
+        // But since we just want to broadcast, we can send it to the whole room
+        io.to(`booking_${bookingId}`).emit('new_message', result);
+      }
+      
+      res.status(201).json(result);
+    } catch (error) {
+      console.error(error);
+      if (error.name === 'ZodError') {
+        return res.status(400).json({ error: error.errors.map(e => e.message).join(', ') });
+      }
+      res.status(error.statusCode || 500).json({ error: error.message || 'Failed to send message' });
     }
-
-    if (booking.status !== 'ACCEPTED' && booking.status !== 'COMPLETED') {
-      return res.status(400).json({ error: 'Messaging is only available for accepted or completed bookings.' });
-    }
-
-    const message = await Message.create({
-      booking_id: bookingId,
-      sender_id: req.user.userId,
-      content,
-    });
-
-    res.status(201).json(message);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Failed to send message' });
   }
-};
+}
 
-module.exports = {
-  getMessages,
-  sendMessage,
-};
+module.exports = new MessageController();
