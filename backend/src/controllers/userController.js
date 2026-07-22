@@ -30,7 +30,11 @@ class UserController {
     } catch (error) {
       console.error(error);
       if (error.name === 'ZodError') {
-        return res.status(400).json({ error: error.errors.map(e => e.message).join(', ') });
+        let issues = error.errors || error.issues;
+        if (!issues) {
+          try { issues = JSON.parse(error.message); } catch(e) { issues = [{ message: error.message }]; }
+        }
+        return res.status(400).json({ error: issues.map(e => e.message).join(', ') });
       }
       res.status(error.statusCode || 500).json({ error: error.message || 'Failed to update profile' });
     }
