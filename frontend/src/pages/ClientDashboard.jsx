@@ -62,15 +62,15 @@ export default function ClientDashboard({ user }) {
 
   useEffect(() => {
     setLoading(true);
-    Promise.all([fetchProviders(), fetchBookings()]).finally(() => setLoading(false));
-  }, []);
+    fetchBookings().finally(() => setLoading(false));
+  }, []); // Only fetch bookings once on mount
 
   useEffect(() => {
     const timer = setTimeout(() => {
       fetchProviders();
     }, 300);
     return () => clearTimeout(timer);
-  }, [category, maxPrice, sortBy]);
+  }, [category, maxPrice, sortBy]); // Fetch providers initially and whenever filters change
 
   const handleOpenBooking = (provider) => {
     setSelectedProvider(provider);

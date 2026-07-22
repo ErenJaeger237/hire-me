@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Clock, CheckCircle2, XCircle, Award, Calendar, DollarSign, RefreshCw, AlertCircle, MessageSquare } from 'lucide-react';
+import { Clock, CheckCircle2, XCircle, Award, Calendar, DollarSign, RefreshCw, AlertCircle, MessageSquare, Star } from 'lucide-react';
 import { bookingService } from '../services/api';
 import ChatModal from '../components/ChatModal';
 
@@ -220,6 +220,18 @@ export default function ProviderDashboard({ user }) {
                     </div>
                   </div>
                   <p className="text-xs text-slate-500 line-clamp-2">{b.description}</p>
+                  
+                  {b.rating && (
+                    <div className="mt-3 pt-3 border-t border-slate-200">
+                      <div className="flex items-center gap-1 text-xs font-bold text-amber-500 mb-1">
+                        <Star className="w-3.5 h-3.5 fill-amber-500" /> 
+                        {b.rating} / 5
+                      </div>
+                      {b.review_text && (
+                        <p className="text-xs text-slate-600 italic">"{b.review_text}"</p>
+                      )}
+                    </div>
+                  )}
                 </div>
               ))
             )}

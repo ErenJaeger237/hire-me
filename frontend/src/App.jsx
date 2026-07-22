@@ -5,6 +5,7 @@ import LandingAuth from './pages/LandingAuth';
 import ClientDashboard from './pages/ClientDashboard';
 import ProviderDashboard from './pages/ProviderDashboard';
 import AdminDashboard from './pages/AdminDashboard';
+import ErrorBoundary from './components/ErrorBoundary';
 
 export default function App() {
   const [user, setUser] = useState(null);
@@ -36,56 +37,58 @@ export default function App() {
   };
 
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route element={<Layout user={user} onLogout={handleLogout} isSettingsOpen={isSettingsOpen} setIsSettingsOpen={setIsSettingsOpen} onUserUpdate={handleUserUpdate} />}>
-          <Route
-            path="/"
-            element={
-              !user ? (
-                <LandingAuth onLoginSuccess={(u) => setUser(u)} />
-              ) : user.role === 'ADMIN' ? (
-                <Navigate to="/admin-dashboard" replace />
-              ) : user.role === 'PROVIDER' ? (
-                <Navigate to="/provider-dashboard" replace />
-              ) : (
-                <Navigate to="/client-dashboard" replace />
-              )
-            }
-          />
-          <Route
-            path="/client-dashboard"
-            element={
-              user && user.role === 'CLIENT' ? (
-                <ClientDashboard user={user} />
-              ) : (
-                <Navigate to="/" replace />
-              )
-            }
-          />
-          <Route
-            path="/provider-dashboard"
-            element={
-              user && user.role === 'PROVIDER' ? (
-                <ProviderDashboard user={user} />
-              ) : (
-                <Navigate to="/" replace />
-              )
-            }
-          />
-          <Route
-            path="/admin-dashboard"
-            element={
-              user && user.role === 'ADMIN' ? (
-                <AdminDashboard user={user} />
-              ) : (
-                <Navigate to="/" replace />
-              )
-            }
-          />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Route>
-      </Routes>
-    </BrowserRouter>
+    <ErrorBoundary>
+      <BrowserRouter>
+        <Routes>
+          <Route element={<Layout user={user} onLogout={handleLogout} isSettingsOpen={isSettingsOpen} setIsSettingsOpen={setIsSettingsOpen} onUserUpdate={handleUserUpdate} />}>
+            <Route
+              path="/"
+              element={
+                !user ? (
+                  <LandingAuth onLoginSuccess={(u) => setUser(u)} />
+                ) : user.role === 'ADMIN' ? (
+                  <Navigate to="/admin-dashboard" replace />
+                ) : user.role === 'PROVIDER' ? (
+                  <Navigate to="/provider-dashboard" replace />
+                ) : (
+                  <Navigate to="/client-dashboard" replace />
+                )
+              }
+            />
+            <Route
+              path="/client-dashboard"
+              element={
+                user && user.role === 'CLIENT' ? (
+                  <ClientDashboard user={user} />
+                ) : (
+                  <Navigate to="/" replace />
+                )
+              }
+            />
+            <Route
+              path="/provider-dashboard"
+              element={
+                user && user.role === 'PROVIDER' ? (
+                  <ProviderDashboard user={user} />
+                ) : (
+                  <Navigate to="/" replace />
+                )
+              }
+            />
+            <Route
+              path="/admin-dashboard"
+              element={
+                user && user.role === 'ADMIN' ? (
+                  <AdminDashboard user={user} />
+                ) : (
+                  <Navigate to="/" replace />
+                )
+              }
+            />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Route>
+        </Routes>
+      </BrowserRouter>
+    </ErrorBoundary>
   );
 }
