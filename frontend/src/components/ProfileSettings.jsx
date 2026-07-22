@@ -13,6 +13,7 @@ export default function ProfileSettings({ currentUser, onClose, onUserUpdate }) 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
   const [formData, setFormData] = useState({
     phone_number: '',
     location_text: '',
@@ -53,16 +54,18 @@ export default function ProfileSettings({ currentUser, onClose, onUserUpdate }) 
     e.preventDefault();
     setSaving(true);
     setSuccess(false);
+    setErrorMsg('');
 
     try {
       await axios.put(`${API_BASE_URL}/users/profile`, formData, getAuthHeaders());
       setSuccess(true);
       if (onUserUpdate) {
-        onUserUpdate({ name: currentUser.name }); // or we could fetch the new user details
+        onUserUpdate({ name: currentUser.name }); 
       }
       setTimeout(() => setSuccess(false), 3000);
     } catch (err) {
       console.error('Error saving profile:', err);
+      setErrorMsg(err.response?.data?.error || 'Failed to save settings.');
     } finally {
       setSaving(false);
     }
@@ -99,7 +102,6 @@ export default function ProfileSettings({ currentUser, onClose, onUserUpdate }) 
       const res = await axios.post(`${API_BASE_URL}/users/profile/upload`, data, {
         headers: {
           ...getAuthHeaders().headers,
-          'Content-Type': 'multipart/form-data',
         }
       });
       setFormData({ ...formData, profile_picture_url: res.data.profile_picture_url });
@@ -241,7 +243,6 @@ export default function ProfileSettings({ currentUser, onClose, onUserUpdate }) 
                             const axios = (await import('axios')).default;
                             await axios.post(`${API_BASE_URL}/users/profile/document`, formData, {
                               headers: {
-                                'Content-Type': 'multipart/form-data',
                                 Authorization: `Bearer ${localStorage.getItem('hire_me_token')}`,
                               },
                             });
@@ -288,6 +289,11 @@ export default function ProfileSettings({ currentUser, onClose, onUserUpdate }) 
               {success && (
                 <div className="bg-emerald-50 text-emerald-700 p-3 rounded-lg text-sm font-bold flex items-center gap-2 border border-emerald-200">
                   <CheckCircle size={18} /> Settings saved successfully!
+                </div>
+              )}
+              {errorMsg && (
+                <div className="bg-rose-50 text-rose-700 p-3 rounded-lg text-sm font-bold flex items-center gap-2 border border-rose-200">
+                  <X size={18} /> {errorMsg}
                 </div>
               )}
 
