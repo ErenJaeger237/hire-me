@@ -52,11 +52,11 @@ export default function ProviderProfileModal({ provider, isOpen, onClose, onBook
                 <div className="text-right">
                   <div className="flex items-center justify-end gap-1 text-amber-500 bg-amber-50 px-2 py-1 rounded-lg border border-amber-100">
                     <Star className="w-4 h-4 fill-amber-500" />
-                    <span className="font-bold text-amber-700">{provider.rating.toFixed(1)}</span>
+                    <span className="font-bold text-on-surface">{provider.rating?.toFixed(1) || '0.0'}</span>
                   </div>
-                  <p className="text-sm font-medium text-on-surface-variant mt-1.5">
-                    ({Math.floor(Math.random() * 50) + 5} reviews)
-                  </p>
+                  <span className="text-on-surface-variant text-sm">
+                    ({provider.reviewCount || 0} reviews)
+                  </span>
                 </div>
               </div>
             </div>

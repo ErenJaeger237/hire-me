@@ -240,7 +240,7 @@ export default function ClientDashboard({ user }) {
                       </span>
                       <div className="mt-2 flex items-center gap-1 text-amber-500">
                         <Star className="w-4 h-4 fill-amber-500" />
-                        <span className="text-sm font-bold text-on-surface">{p.rating.toFixed(1)}</span>
+                        <span className="text-sm font-bold text-on-surface">{p.rating?.toFixed(1) || '0.0'}</span>
                       </div>
                     </div>
                   </div>
