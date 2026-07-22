@@ -40,8 +40,8 @@ const User = sequelize.define('User', {
     allowNull: true,
   },
   wallet_balance: {
-    type: DataTypes.INTEGER,
-    defaultValue: 0,
+    type: DataTypes.DECIMAL(12, 2),
+    defaultValue: 0.00,
   },
   location_lat: {
     type: DataTypes.FLOAT,

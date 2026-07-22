@@ -28,7 +28,7 @@ const Booking = sequelize.define('Booking', {
     allowNull: true,
   },
   rating: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.DECIMAL(2, 1),
     allowNull: true,
   },
   review_text: {
