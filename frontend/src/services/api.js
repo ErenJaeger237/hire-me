@@ -58,6 +58,10 @@ export const bookingService = {
 };
 
 export const userService = {
+  getProfile: async () => {
+    const response = await api.get('/users/profile');
+    return response.data;
+  },
   getNotifications: async () => {
     const response = await api.get('/users/notifications');
     return response.data;

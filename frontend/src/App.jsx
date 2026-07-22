@@ -59,7 +59,7 @@ export default function App() {
               path="/client-dashboard"
               element={
                 user && user.role === 'CLIENT' ? (
-                  <ClientDashboard user={user} />
+                  <ClientDashboard user={user} onUserUpdate={handleUserUpdate} />
                 ) : (
                   <Navigate to="/" replace />
                 )
@@ -69,7 +69,7 @@ export default function App() {
               path="/provider-dashboard"
               element={
                 user && user.role === 'PROVIDER' ? (
-                  <ProviderDashboard user={user} />
+                  <ProviderDashboard user={user} onUserUpdate={handleUserUpdate} />
                 ) : (
                   <Navigate to="/" replace />
                 )
@@ -79,7 +79,7 @@ export default function App() {
               path="/admin-dashboard"
               element={
                 user && user.role === 'ADMIN' ? (
-                  <AdminDashboard user={user} />
+                  <AdminDashboard user={user} onUserUpdate={handleUserUpdate} />
                 ) : (
                   <Navigate to="/" replace />
                 )

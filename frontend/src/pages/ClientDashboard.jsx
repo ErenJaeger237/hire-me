@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Filter, Star, Calendar, DollarSign, Clock, CheckCircle, AlertCircle, RefreshCw, ChevronDown, CheckCircle2, UserCheck } from 'lucide-react';
-import { providerService, bookingService } from '../services/api';
+import { providerService, bookingService, userService } from '../services/api';
 import BookingModal from '../components/BookingModal';
 import ChatModal from '../components/ChatModal';
 import ReviewModal from '../components/ReviewModal';
 import ProviderProfileModal from '../components/ProviderProfileModal';
 
-export default function ClientDashboard({ user }) {
+export default function ClientDashboard({ user, onUserUpdate }) {
   const [providers, setProviders] = useState([]);
   const [bookings, setBookings] = useState([]);
 
@@ -69,6 +69,12 @@ export default function ClientDashboard({ user }) {
     try {
       await bookingService.updateStatus(bookingId, newStatus);
       fetchBookings();
+      // Fetch latest profile to update wallet balance in Navbar
+      if (onUserUpdate) {
+        userService.getProfile().then(profile => {
+          onUserUpdate({ wallet_balance: profile.user.wallet_balance });
+        }).catch(err => console.error(err));
+      }
       setFeedbackMsg(`Job successfully marked as ${newStatus}!`);
       setTimeout(() => setFeedbackMsg(''), 3000);
     } catch (err) {
@@ -96,9 +102,15 @@ export default function ClientDashboard({ user }) {
   };
 
   const handleBookingSuccess = () => {
-    setFeedbackMsg('Your booking request was submitted successfully!');
+    setIsModalOpen(false);
     fetchBookings();
-    setTimeout(() => setFeedbackMsg(''), 4000);
+    if (onUserUpdate) {
+      userService.getProfile().then(profile => {
+        onUserUpdate({ wallet_balance: profile.user.wallet_balance });
+      }).catch(err => console.error(err));
+    }
+    setFeedbackMsg('Booking request successfully sent!');
+    setTimeout(() => setFeedbackMsg(''), 3000);
   };
 
   return (
