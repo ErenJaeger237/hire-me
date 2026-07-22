@@ -5,6 +5,7 @@ import { bookingService } from '../services/api';
 export default function BookingModal({ provider, isOpen, onClose, onSuccess }) {
   const [jobDate, setJobDate] = useState('');
   const [jobTime, setJobTime] = useState('');
+  const [hours, setHours] = useState(1);
   const [description, setDescription] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
@@ -25,8 +26,9 @@ export default function BookingModal({ provider, isOpen, onClose, onSuccess }) {
       } catch(e) {}
     }
     
-    if (walletBalance < provider.hourly_rate) {
-      setError(`Insufficient wallet balance. You have ${walletBalance} FCFA but need ${provider.hourly_rate} FCFA. Please top up your wallet first.`);
+    const bookingFee = provider.hourly_rate * hours;
+    if (walletBalance < bookingFee) {
+      setError(`Insufficient wallet balance. You have ${walletBalance} FCFA but need ${bookingFee} FCFA (for ${hours} hrs). Please top up your wallet first.`);
       return;
     }
     
@@ -43,6 +45,7 @@ export default function BookingModal({ provider, isOpen, onClose, onSuccess }) {
         providerId: provider.id,
         date: scheduledDateTime,
         description,
+        hours,
       });
 
       setSuccessMessage('Booking request submitted successfully!');
@@ -124,6 +127,22 @@ export default function BookingModal({ provider, isOpen, onClose, onSuccess }) {
                     </button>
                   ))}
                 </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-on-surface-variant block" htmlFor="hours-est">Estimated Duration (Hours)</label>
+                <input
+                  id="hours-est"
+                  type="number"
+                  min="1"
+                  max="100"
+                  value={hours}
+                  onChange={(e) => setHours(Math.max(1, parseInt(e.target.value) || 1))}
+                  className="w-full bg-surface-bright border border-outline rounded-lg p-3 pl-4 focus:ring-2 focus:ring-primary focus:border-primary outline-none text-base"
+                />
+                <p className="text-xs text-on-surface-variant">
+                  Total Escrow Fee: <span className="font-bold text-primary">{provider.hourly_rate * hours} FCFA</span>
+                </p>
               </div>
 
               <div className="space-y-2">

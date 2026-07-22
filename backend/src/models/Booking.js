@@ -27,6 +27,10 @@ const Booking = sequelize.define('Booking', {
     type: DataTypes.TEXT,
     allowNull: true,
   },
+  estimated_hours: {
+    type: DataTypes.INTEGER,
+    defaultValue: 1,
+  },
   rating: {
     type: DataTypes.DECIMAL(2, 1),
     allowNull: true,

@@ -2,7 +2,7 @@ const { Booking, ProviderProfile, User } = require('../models');
 const { Op } = require('sequelize');
 
 class BookingService {
-  async createBooking(clientId, { providerId, date, description }) {
+  async createBooking(clientId, { providerId, date, description, hours }) {
     const providerProfile = await ProviderProfile.findByPk(providerId);
     if (!providerProfile) {
       throw Object.assign(new Error('Service Provider profile not found.'), { statusCode: 404 });
@@ -13,13 +13,16 @@ class BookingService {
 
     try {
       const client = await User.findByPk(clientId, { transaction: t });
-      const bookingFee = providerProfile.hourly_rate;
+      
+      const estimatedHours = Number(hours) || 1;
+      const hourlyRate = Number(providerProfile.hourly_rate);
+      const bookingFee = hourlyRate * estimatedHours;
 
-      if ((client.wallet_balance || 0) < bookingFee) {
-        throw Object.assign(new Error(`Insufficient FCFA balance. Minimum required: ${bookingFee} FCFA`), { statusCode: 400 });
+      if (Number(client.wallet_balance || 0) < bookingFee) {
+        throw Object.assign(new Error(`Insufficient FCFA balance. Minimum required: ${bookingFee} FCFA (for ${estimatedHours} hours). Please top up your wallet.`), { statusCode: 400 });
       }
 
-      client.wallet_balance -= bookingFee;
+      client.wallet_balance = Number(client.wallet_balance || 0) - bookingFee;
       await client.save({ transaction: t });
 
       const newBooking = await Booking.create({
@@ -28,6 +31,7 @@ class BookingService {
         job_date: new Date(date),
         description: description || '',
         status: 'PENDING',
+        estimated_hours: estimatedHours,
       }, { transaction: t });
 
       await Transaction.create({
@@ -132,12 +136,12 @@ class BookingService {
         if (status !== 'COMPLETED') throw Object.assign(new Error('Clients can only mark jobs as Completed.'), { statusCode: 403 });
       }
 
-      const bookingFee = booking.provider.hourly_rate;
+      const bookingFee = Number(booking.provider.hourly_rate) * Number(booking.estimated_hours || 1);
 
       if (status === 'REJECTED') {
         // Refund client
         const client = await User.findByPk(booking.client_id, { transaction: t });
-        client.wallet_balance = (client.wallet_balance || 0) + bookingFee;
+        client.wallet_balance = Number(client.wallet_balance || 0) + bookingFee;
         await client.save({ transaction: t });
 
         await Transaction.create({
@@ -150,7 +154,7 @@ class BookingService {
       } else if (status === 'COMPLETED') {
         // Pay provider
         const providerUser = await User.findByPk(booking.provider.user_id, { transaction: t });
-        providerUser.wallet_balance = (providerUser.wallet_balance || 0) + bookingFee;
+        providerUser.wallet_balance = Number(providerUser.wallet_balance || 0) + bookingFee;
         await providerUser.save({ transaction: t });
 
         await Transaction.create({
