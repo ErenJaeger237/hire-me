@@ -4,7 +4,8 @@ const UserClass = require('../classes/UserClass');
 
 class AuthService {
   async register({ name, email, password, role, trade, hourlyRate, bio }) {
-    const existingUser = await User.findOne({ where: { email } });
+    const normalizedEmail = email.trim().toLowerCase();
+    const existingUser = await User.findOne({ where: { email: normalizedEmail } });
     if (existingUser) {
       throw Object.assign(new Error('Email address is already registered.'), { statusCode: 409 });
     }
@@ -14,7 +15,7 @@ class AuthService {
 
     const userRecord = await User.create({
       name,
-      email,
+      email: normalizedEmail,
       password_hash,
       role: role.toUpperCase(),
     });
@@ -35,7 +36,8 @@ class AuthService {
   }
 
   async login({ email, password }) {
-    const userRecord = await User.findOne({ where: { email } });
+    const normalizedEmail = email.trim().toLowerCase();
+    const userRecord = await User.findOne({ where: { email: normalizedEmail } });
     if (!userRecord) {
       throw Object.assign(new Error('Invalid email or password.'), { statusCode: 401 });
     }
