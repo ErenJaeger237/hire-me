@@ -34,7 +34,7 @@ class BookingController {
     try {
       const bookingId = req.params.id;
       const validatedData = updateBookingStatusSchema.parse(req.body);
-      const result = await bookingService.updateBookingStatus(bookingId, validatedData.status);
+      const result = await bookingService.updateBookingStatus(bookingId, validatedData.status, req.user.id, req.user.role);
       return res.status(200).json(result);
     } catch (error) {
       console.error('Update Booking Error:', error);

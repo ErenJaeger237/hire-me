@@ -8,7 +8,8 @@ function authenticateToken(req, res, next) {
     return res.status(401).json({ error: 'Access denied. No token provided.' });
   }
 
-  const secret = process.env.JWT_SECRET || 'super_secret_hire_me_jwt_key_2026';
+  const secret = process.env.JWT_SECRET;
+  if (!secret) throw new Error('FATAL: JWT_SECRET environment variable is not set.');
 
   jwt.verify(token, secret, (err, user) => {
     if (err) {

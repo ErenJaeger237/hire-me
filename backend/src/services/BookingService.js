@@ -94,7 +94,7 @@ class BookingService {
     };
   }
 
-  async updateBookingStatus(bookingId, status) {
+  async updateBookingStatus(bookingId, status, requestingUserId, requestingUserRole) {
     const { sequelize, Transaction } = require('../models');
     const t = await sequelize.transaction();
 
@@ -108,8 +108,28 @@ class BookingService {
         throw Object.assign(new Error('Booking not found.'), { statusCode: 404 });
       }
 
-      if (booking.status === 'COMPLETED' || booking.status === 'REJECTED') {
-        throw Object.assign(new Error(`Booking is already ${booking.status} and cannot be changed.`), { statusCode: 400 });
+      const VALID_TRANSITIONS = {
+        PENDING: ['ACCEPTED', 'REJECTED'],
+        ACCEPTED: ['COMPLETED'],
+      };
+
+      if (!VALID_TRANSITIONS[booking.status]?.includes(status)) {
+        throw Object.assign(new Error(`Invalid transition: ${booking.status} -> ${status}`), { statusCode: 400 });
+      }
+
+      if (requestingUserRole === 'PROVIDER') {
+        const profile = await ProviderProfile.findOne({ where: { user_id: requestingUserId } });
+        if (!profile || booking.provider_id !== profile.id) {
+          throw Object.assign(new Error('Forbidden: You do not own this booking.'), { statusCode: 403 });
+        }
+        if (status === 'COMPLETED') throw Object.assign(new Error('Only clients can mark a job as completed.'), { statusCode: 403 });
+      }
+      
+      if (requestingUserRole === 'CLIENT') {
+        if (booking.client_id !== requestingUserId) {
+          throw Object.assign(new Error('Forbidden.'), { statusCode: 403 });
+        }
+        if (status !== 'COMPLETED') throw Object.assign(new Error('Clients can only mark jobs as Completed.'), { statusCode: 403 });
       }
 
       const bookingFee = booking.provider.hourly_rate;

@@ -24,7 +24,9 @@ class UserClass {
   }
 
   generateAuthToken() {
-    const secret = process.env.JWT_SECRET || 'super_secret_hire_me_jwt_key_2026';
+    const secret = process.env.JWT_SECRET;
+    if (!secret) throw new Error('FATAL: JWT_SECRET environment variable is not set.');
+    
     return jwt.sign(
       { id: this._id, email: this._email, role: this._role },
       secret,
