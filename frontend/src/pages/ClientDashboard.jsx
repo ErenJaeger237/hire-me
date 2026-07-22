@@ -4,6 +4,7 @@ import { providerService, bookingService } from '../services/api';
 import BookingModal from '../components/BookingModal';
 import ChatModal from '../components/ChatModal';
 import ReviewModal from '../components/ReviewModal';
+import ProviderProfileModal from '../components/ProviderProfileModal';
 
 export default function ClientDashboard({ user }) {
   const [providers, setProviders] = useState([]);
@@ -20,6 +21,8 @@ export default function ClientDashboard({ user }) {
   const [selectedBookingToChat, setSelectedBookingToChat] = useState(null);
   const [isChatModalOpen, setIsChatModalOpen] = useState(false);
   
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [selectedProviderForProfile, setSelectedProviderForProfile] = useState(null);
   const [selectedBookingForReview, setSelectedBookingForReview] = useState(null);
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
 
@@ -196,7 +199,11 @@ export default function ClientDashboard({ user }) {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {providers.map((p) => (
-                <div key={p.id} className="bg-surface-bright rounded-xl p-6 shadow-sm border border-outline hover:shadow-md transition-shadow flex flex-col group">
+                <div 
+                  key={p.id} 
+                  className="bg-surface-bright rounded-2xl p-6 border border-outline hover:border-primary/30 hover:shadow-lg transition-all group cursor-pointer flex flex-col h-full"
+                  onClick={() => { setSelectedProviderForProfile(p); setIsProfileModalOpen(true); }}
+                >
                   <div className="flex items-start justify-between mb-4">
                     <div className="relative">
                       <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-surface-container">
@@ -232,7 +239,7 @@ export default function ClientDashboard({ user }) {
                   
                   <div className="mt-auto">
                     <button 
-                      onClick={() => handleOpenBooking(p)}
+                      onClick={(e) => { e.stopPropagation(); handleOpenBooking(p); }}
                       className="w-full py-2.5 rounded-lg border-2 border-primary text-primary font-medium hover:bg-primary hover:text-white transition-all active:scale-95"
                     >
                       Book Now
@@ -345,6 +352,13 @@ export default function ClientDashboard({ user }) {
         currentUser={user}
       />
 
+      <ProviderProfileModal
+        provider={selectedProviderForProfile}
+        isOpen={isProfileModalOpen}
+        onClose={() => setIsProfileModalOpen(false)}
+        onBookNow={handleOpenBooking}
+      />
+      
       <ReviewModal
         booking={selectedBookingForReview}
         isOpen={isReviewModalOpen}
