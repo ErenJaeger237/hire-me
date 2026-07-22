@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Hire Me | Client Discovery Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-secondary-container": "#00714d",
+                    "tertiary": "#943700",
+                    "primary": "#004ac6",
+                    "on-tertiary": "#ffffff",
+                    "surface-container-lowest": "#FFFFFF",
+                    "surface-container-highest": "#CBD5E1",
+                    "tertiary-fixed": "#ffdbcd",
+                    "surface": "#F8FAFC",
+                    "on-error-container": "#93000a",
+                    "outline": "#E2E8F0",
+                    "primary-fixed-dim": "#b4c5ff",
+                    "surface-bright": "#faf8ff",
+                    "surface-dim": "#d9d9e5",
+                    "inverse-on-surface": "#f0f0fb",
+                    "outline-variant": "#c3c6d7",
+                    "secondary": "#006c49",
+                    "tertiary-container": "#bc4800",
+                    "surface-container": "#F1F5F9",
+                    "background": "#faf8ff",
+                    "error": "#EF4444",
+                    "surface-tint": "#0053db",
+                    "on-tertiary-fixed": "#360f00",
+                    "error-container": "#ffdad6",
+                    "on-primary-fixed": "#00174b",
+                    "on-surface": "#191b23",
+                    "on-secondary-fixed": "#002113",
+                    "inverse-primary": "#b4c5ff",
+                    "on-surface-variant": "#64748B",
+                    "secondary-container": "#6cf8bb",
+                    "surface-container-high": "#e7e7f3",
+                    "on-tertiary-container": "#ffede6",
+                    "surface-container-low": "#F8FAFC",
+                    "primary-fixed": "#dbe1ff",
+                    "secondary-fixed": "#6ffbbe",
+                    "secondary-fixed-dim": "#4edea3",
+                    "tertiary-fixed-dim": "#ffb596",
+                    "warning": "#F59E0B",
+                    "on-secondary": "#ffffff",
+                    "on-primary": "#ffffff",
+                    "primary-container": "#2563eb",
+                    "on-secondary-fixed-variant": "#005236",
+                    "on-primary-container": "#eeefff",
+                    "on-error": "#ffffff",
+                    "inverse-surface": "#2e3039",
+                    "on-background": "#191b23",
+                    "on-primary-fixed-variant": "#003ea8",
+                    "on-tertiary-fixed-variant": "#7d2d00",
+                    "surface-variant": "#e1e2ed"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "xs": "8px",
+                    "xxs": "4px",
+                    "base": "4px",
+                    "lg": "24px",
+                    "md": "16px",
+                    "margin-mobile": "16px",
+                    "sm": "12px",
+                    "xl": "32px",
+                    "gutter": "16px",
+                    "margin-desktop": "32px"
+            },
+            "fontFamily": {
+                    "body-md": ["Inter"],
+                    "headline-lg": ["Inter"],
+                    "label-md": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "headline-xl": ["Inter"],
+                    "headline-xl-mobile": ["Inter"],
+                    "label-sm": ["Inter"],
+                    "headline-md": ["Inter"]
+            },
+            "fontSize": {
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                    "label-md": ["14px", {"lineHeight": "20px", "fontWeight": "500"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "headline-xl": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "headline-xl-mobile": ["36px", {"lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "700"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; background-color: #F8FAFC; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        .search-group-container {
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+<!-- TopNavBar (Shared Component) -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-margin-desktop bg-surface-bright dark:bg-inverse-surface h-16 shadow-sm border-b border-outline dark:border-outline-variant">
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-2 text-headline-md font-headline-md font-bold text-primary dark:text-inverse-primary cursor-pointer">
+<span>Hire Me</span>
+</div>
+<nav class="hidden md:flex items-center gap-6">
+<a class="text-primary dark:text-inverse-primary font-bold border-b-2 border-primary dark:border-inverse-primary pb-1 font-label-md text-label-md" href="#">Find Services</a>
+<a class="text-on-surface-variant dark:text-surface-variant font-medium hover:text-primary dark:hover:text-inverse-primary transition-colors duration-200 font-label-md text-label-md" href="#">How It Works</a>
+<a class="text-on-surface-variant dark:text-surface-variant font-medium hover:text-primary dark:hover:text-inverse-primary transition-colors duration-200 font-label-md text-label-md" href="#">Become a Professional</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors p-2" data-icon="notifications">notifications</button>
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors p-2" data-icon="chat_bubble">chat_bubble</button>
+<button class="bg-primary text-on-primary px-4 py-2 rounded-lg font-label-md text-label-md hover:bg-primary-container transition-all active:opacity-80">Post a Task</button>
+<div class="w-8 h-8 rounded-full overflow-hidden border border-outline">
+<img class="w-full h-full object-cover" data-alt="A clean, professional close-up headshot of a smiling business person in a corporate setting. The background is a soft-focus modern office with glass walls and neutral tones, aligning with the light-mode blue and white aesthetic. High-quality studio lighting highlights professional features and trust." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA3tpSPkpYHE8wEBcU4NKUI8w1xPnbtrzBDusu27K2rsf_Z92BE2rbSE0Ms2RTPUSVx1l0ftjqek519_Uax_sxT8VqgZNhV6REU_27o_-CiyYkPvSihkiH1seMUpXrrbO_8AUyGYWEbJPsCTA2XPjoc-1fATHt34aV1rLSx1DhMaaqWWpdNT9wRvXzNLEZy4ihXBuuPmqI7QKgxz-_7PJs37aIwk-3g538eFOeV-fbAU6bHVakLAvdj"/>
+</div>
+</div>
+</header>
+<!-- Hero Search Banner -->
+<section class="mt-16 pt-12 pb-16 bg-surface-container">
+<div class="max-w-6xl mx-auto px-margin-mobile md:px-margin-desktop text-center">
+<h1 class="text-headline-xl-mobile md:text-headline-xl font-headline-xl mb-8 text-on-surface">Find the perfect expert for your task</h1>
+<div class="search-group-container bg-surface-bright rounded-xl p-2 flex flex-col md:flex-row items-center gap-2 max-w-4xl mx-auto">
+<div class="flex-1 w-full flex items-center px-4 border-r-0 md:border-r border-outline">
+<span class="material-symbols-outlined text-on-surface-variant mr-3" data-icon="search">search</span>
+<input class="w-full py-3 bg-transparent border-none focus:ring-0 text-body-md font-body-md text-on-surface" placeholder="What service do you need?" type="text"/>
+</div>
+<div class="w-full md:w-48 px-4 flex items-center border-r-0 md:border-r border-outline">
+<span class="material-symbols-outlined text-on-surface-variant mr-2" data-icon="category">category</span>
+<select class="w-full py-3 bg-transparent border-none focus:ring-0 text-label-md font-label-md text-on-surface appearance-none">
+<option>Category</option>
+<option>Development</option>
+<option>Design</option>
+<option>Marketing</option>
+</select>
+</div>
+<div class="w-full md:w-40 px-4 flex items-center">
+<span class="material-symbols-outlined text-on-surface-variant mr-2" data-icon="payments">payments</span>
+<select class="w-full py-3 bg-transparent border-none focus:ring-0 text-label-md font-label-md text-on-surface appearance-none">
+<option>Max Rate</option>
+<option>$20/hr</option>
+<option>$50/hr</option>
+<option>$100/hr</option>
+</select>
+</div>
+<button class="w-full md:w-auto bg-primary text-on-primary px-8 py-3 rounded-lg font-label-md text-label-md hover:bg-primary-container transition-all">Search</button>
+</div>
+<div class="mt-6 flex flex-wrap justify-center gap-2">
+<span class="text-label-sm font-label-sm text-on-surface-variant px-3 py-1 bg-surface-container-high rounded-full hover:bg-outline-variant cursor-pointer transition-colors">Web Development</span>
+<span class="text-label-sm font-label-sm text-on-surface-variant px-3 py-1 bg-surface-container-high rounded-full hover:bg-outline-variant cursor-pointer transition-colors">UI/UX Design</span>
+<span class="text-label-sm font-label-sm text-on-surface-variant px-3 py-1 bg-surface-container-high rounded-full hover:bg-outline-variant cursor-pointer transition-colors">Data Analysis</span>
+<span class="text-label-sm font-label-sm text-on-surface-variant px-3 py-1 bg-surface-container-high rounded-full hover:bg-outline-variant cursor-pointer transition-colors">SEO Specialist</span>
+</div>
+</div>
+</section>
+<!-- Main Content: Provider Grid -->
+<main class="flex-grow bg-surface py-12">
+<div class="max-w-6xl mx-auto px-margin-mobile md:px-margin-desktop">
+<div class="flex justify-between items-center mb-8">
+<h2 class="text-headline-md font-headline-md text-on-surface">Top Recommended Professionals</h2>
+<div class="flex items-center gap-2 text-label-md font-label-md text-on-surface-variant cursor-pointer hover:text-primary">
+                    Sort by: Rating <span class="material-symbols-outlined">expand_more</span>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+<!-- Card 1 -->
+<div class="bg-surface-bright rounded-xl p-6 shadow-sm border border-outline hover:shadow-md transition-shadow flex flex-col group">
+<div class="flex items-start justify-between mb-4">
+<div class="relative">
+<div class="w-16 h-16 rounded-full overflow-hidden border-2 border-surface-container">
+<img class="w-full h-full object-cover" data-alt="A professional portrait of a senior software developer with a friendly expression. They are wearing a navy blue polo shirt, set against a clean, minimal tech-focused office with soft natural lighting. The image evokes expertise, reliability, and modern professional vibes within a corporate blue-tinted environment." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDv0fLlM12sxUf2XJuyVi1C9n0tslQFem6G3S5cFJFySZBShB8JpENbC6UeHMTr1B8MngEcCE0Hfnw7HaxOVMGJ2Oxd1S__wyv8-pPG1MkAqtpqwrnSxldwgfAG1v9ulIatz9aONkDpVO8pY1_Mr5yinIuUnxTWW_yQiFBRckLeDx5m3duNTqi1LFOGN68hQRVnSUlHM1TLXS4tGQX-7eAzeDWftwiK2WmLRXoDbbqEY5WugU9GNr1n"/>
+</div>
+<span class="absolute bottom-0 right-0 bg-secondary rounded-full p-0.5 border-2 border-surface-bright" title="Verified">
+<span class="material-symbols-outlined text-[14px] text-on-secondary" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</span>
+</div>
+<div class="flex flex-col items-end">
+<span class="text-on-secondary-container bg-secondary-container px-3 py-1 rounded-full text-label-sm font-label-sm">Development</span>
+<div class="mt-2 flex items-center gap-1 text-warning">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="text-label-md font-label-md text-on-surface">4.9</span>
+</div>
+</div>
+</div>
+<h3 class="text-body-lg font-bold text-on-surface mb-1 group-hover:text-primary transition-colors">Alex Rivera</h3>
+<p class="text-primary font-bold text-body-md mb-3">$35/hr</p>
+<p class="text-on-surface-variant text-body-md font-body-md line-clamp-2 mb-6">Full-stack specialist with 8 years of experience building scalable SaaS platforms and high-performance React applications.</p>
+<div class="mt-auto">
+<button class="w-full py-2 rounded-lg border-2 border-primary text-primary font-label-md text-label-md hover:bg-primary hover:text-on-primary transition-all active:scale-95">Hire Me / Book Now</button>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="bg-surface-bright rounded-xl p-6 shadow-sm border border-outline hover:shadow-md transition-shadow flex flex-col group">
+<div class="flex items-start justify-between mb-4">
+<div class="relative">
+<div class="w-16 h-16 rounded-full overflow-hidden border-2 border-surface-container">
+<img class="w-full h-full object-cover" data-alt="A stylish professional woman with glasses smiling confidently, wearing a white blazer. The background is an artistic creative studio with light blue accents and large windows. The overall aesthetic is bright, professional, and sophisticated, reflecting a top-tier creative professional in a modern corporate setting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBbc_a6MLxvJuhLFLqEeX7Rv_Lvq1rws5ANJFaFDhFxulI3Wr5IJqtVvOBRKG-KH6-AYCCh8LhxujGxdTDOPXZQ_9ED1tDEXk4dlu0gtPU9z_hTWkqnUnaQLhZ1xvbK4evAmmBHecDTq6OrnnXkN6Z__xPQLvE2tc9dWs9P6rdkTZe87HORb9gYtjfQxs4B6ZtVzNyz6m75Dt4aZhp5qtXYtN4P6t2KQCOs-a9YeskMnDmrNQRQGyZb"/>
+</div>
+<span class="absolute bottom-0 right-0 bg-secondary rounded-full p-0.5 border-2 border-surface-bright" title="Verified">
+<span class="material-symbols-outlined text-[14px] text-on-secondary" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</span>
+</div>
+<div class="flex flex-col items-end">
+<span class="text-on-secondary-container bg-secondary-container px-3 py-1 rounded-full text-label-sm font-label-sm">Design</span>
+<div class="mt-2 flex items-center gap-1 text-warning">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="text-label-md font-label-md text-on-surface">4.8</span>
+</div>
+</div>
+</div>
+<h3 class="text-body-lg font-bold text-on-surface mb-1 group-hover:text-primary transition-colors">Sarah Chen</h3>
+<p class="text-primary font-bold text-body-md mb-3">$45/hr</p>
+<p class="text-on-surface-variant text-body-md font-body-md line-clamp-2 mb-6">Award-winning UI/UX designer focused on creating intuitive digital experiences and high-conversion landing pages.</p>
+<div class="mt-auto">
+<button class="w-full py-2 rounded-lg border-2 border-primary text-primary font-label-md text-label-md hover:bg-primary hover:text-on-primary transition-all active:scale-95">Hire Me / Book Now</button>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="bg-surface-bright rounded-xl p-6 shadow-sm border border-outline hover:shadow-md transition-shadow flex flex-col group">
+<div class="flex items-start justify-between mb-4">
+<div class="relative">
+<div class="w-16 h-16 rounded-full overflow-hidden border-2 border-surface-container">
+<img class="w-full h-full object-cover" data-alt="A friendly, approachable marketing professional in business casual attire. He is standing in a brightly lit co-working space with blue and white minimalist furniture. The lighting is soft and professional, capturing a warm and trustworthy persona suitable for a corporate services marketplace." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBjFQMPDs-jS7yVn5Wbgph1ou-vaRbdq5WjHHzZ0p_gmOaxBOImPECNfpO_k1ZazsnsFi_SCg8MrFvAoVO8jbH39vhVtXLqgXWbCMoerZUu88XBgit_gyfo-QyU-wWj3r9Li4jL8PbgWNAcdmAXkDud_zedVc6MLFBZp48W0v7to2ZzvNJIcbFm4kRQw7ssgED8_iua7APtTFMDTGBOkLUgUIA0WbBXzNaMC0Zt-VOp97MPiWCbfSI_"/>
+</div>
+<span class="absolute bottom-0 right-0 bg-secondary rounded-full p-0.5 border-2 border-surface-bright" title="Verified">
+<span class="material-symbols-outlined text-[14px] text-on-secondary" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</span>
+</div>
+<div class="flex flex-col items-end">
+<span class="text-on-secondary-container bg-secondary-container px-3 py-1 rounded-full text-label-sm font-label-sm">Marketing</span>
+<div class="mt-2 flex items-center gap-1 text-warning">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="text-label-md font-label-md text-on-surface">5.0</span>
+</div>
+</div>
+</div>
+<h3 class="text-body-lg font-bold text-on-surface mb-1 group-hover:text-primary transition-colors">Marcus Thorne</h3>
+<p class="text-primary font-bold text-body-md mb-3">$40/hr</p>
+<p class="text-on-surface-variant text-body-md font-body-md line-clamp-2 mb-6">Growth hacker and SEO strategist helping startups achieve 10x organic traffic growth through data-driven campaigns.</p>
+<div class="mt-auto">
+<button class="w-full py-2 rounded-lg border-2 border-primary text-primary font-label-md text-label-md hover:bg-primary hover:text-on-primary transition-all active:scale-95">Hire Me / Book Now</button>
+</div>
+</div>
+<!-- Card 4 -->
+<div class="bg-surface-bright rounded-xl p-6 shadow-sm border border-outline hover:shadow-md transition-shadow flex flex-col group">
+<div class="flex items-start justify-between mb-4">
+<div class="relative">
+<div class="w-16 h-16 rounded-full overflow-hidden border-2 border-surface-container">
+<img class="w-full h-full object-cover" data-alt="A middle-aged professional with silver hair and a sharp suit, radiating wisdom and corporate authority. The background is a clean white boardroom with blue accents. The lighting is high-key and professional, reinforcing themes of corporate consulting, reliability, and elite expertise." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAgdD6FW1aB5-2WcTTzzkeOongVmnAlR1Zsrl5Z4o64IpaJCV-iYkwS1SVNbKAA4wxnipl1_5WMqyDEO8CF1SkrOnMRRwEXtXnT4WADOh9xvMf3GEEb9cXSfcgP90XANb3Ps6Jl7xy5Pm_uN3TXLvoW8lbghgISngHwlXxefyrmNX7cWOGJz22NNXdnaX9k2ejpO9On8CXcLS0IzY3cCJxnaQ4yf4MWnoPXN0Al_liqpxSEqMOhHzkt"/>
+</div>
+<span class="absolute bottom-0 right-0 bg-secondary rounded-full p-0.5 border-2 border-surface-bright" title="Verified">
+<span class="material-symbols-outlined text-[14px] text-on-secondary" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</span>
+</div>
+<div class="flex flex-col items-end">
+<span class="text-on-secondary-container bg-secondary-container px-3 py-1 rounded-full text-label-sm font-label-sm">Consulting</span>
+<div class="mt-2 flex items-center gap-1 text-warning">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="text-label-md font-label-md text-on-surface">4.9</span>
+</div>
+</div>
+</div>
+<h3 class="text-body-lg font-bold text-on-surface mb-1 group-hover:text-primary transition-colors">Eleanor Vance</h3>
+<p class="text-primary font-bold text-body-md mb-3">$120/hr</p>
+<p class="text-on-surface-variant text-body-md font-body-md line-clamp-2 mb-6">Strategic business advisor with a focus on operational efficiency and digital transformation for mid-market firms.</p>
+<div class="mt-auto">
+<button class="w-full py-2 rounded-lg border-2 border-primary text-primary font-label-md text-label-md hover:bg-primary hover:text-on-primary transition-all active:scale-95">Hire Me / Book Now</button>
+</div>
+</div>
+<!-- Card 5 -->
+<div class="bg-surface-bright rounded-xl p-6 shadow-sm border border-outline hover:shadow-md transition-shadow flex flex-col group">
+<div class="flex items-start justify-between mb-4">
+<div class="relative">
+<div class="w-16 h-16 rounded-full overflow-hidden border-2 border-surface-container">
+<img class="w-full h-full object-cover" data-alt="A young energetic creative professional wearing a mustard yellow sweater and a bright smile. The backdrop is a clean minimalist wall with simple geometric art. Bright daylight fills the frame, creating a cheerful yet highly professional atmosphere that aligns with modern freelance branding." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC7NCgmVEpDx5GUdvB0ma6K8nlS1QFljywKeEcXvusVQ1E8u4Bq4FdkUgumf637znEfyPZ-jOOy9-_w6Go8Kik4mFzxXL9WOuYq3jmgOcUAr25aGL8r8IxQpxrsxnfdqPpICzOFdGHJxNgMBaZoX0RGviQ4C5ykU_UEsyQHLf7gIUNB3sAqEy4jljs92EJne2cZTMCw-VDTdwKEzLrylkW_z6lIEexDLTY7ylOaYXtPscCqJ51hsShU"/>
+</div>
+<span class="absolute bottom-0 right-0 bg-secondary rounded-full p-0.5 border-2 border-surface-bright" title="Verified">
+<span class="material-symbols-outlined text-[14px] text-on-secondary" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</span>
+</div>
+<div class="flex flex-col items-end">
+<span class="text-on-secondary-container bg-secondary-container px-3 py-1 rounded-full text-label-sm font-label-sm">Writing</span>
+<div class="mt-2 flex items-center gap-1 text-warning">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="text-label-md font-label-md text-on-surface">4.7</span>
+</div>
+</div>
+</div>
+<h3 class="text-body-lg font-bold text-on-surface mb-1 group-hover:text-primary transition-colors">Julian Banks</h3>
+<p class="text-primary font-bold text-body-md mb-3">$30/hr</p>
+<p class="text-on-surface-variant text-body-md font-body-md line-clamp-2 mb-6">Content strategist and copywriter specializing in technical documentation and compelling brand storytelling for tech brands.</p>
+<div class="mt-auto">
+<button class="w-full py-2 rounded-lg border-2 border-primary text-primary font-label-md text-label-md hover:bg-primary hover:text-on-primary transition-all active:scale-95">Hire Me / Book Now</button>
+</div>
+</div>
+<!-- Card 6 -->
+<div class="bg-surface-bright rounded-xl p-6 shadow-sm border border-outline hover:shadow-md transition-shadow flex flex-col group">
+<div class="flex items-start justify-between mb-4">
+<div class="relative">
+<div class="w-16 h-16 rounded-full overflow-hidden border-2 border-surface-container">
+<img class="w-full h-full object-cover" data-alt="A professional analyst with a focused and serious expression, looking at a screen off-camera. They are wearing a structured charcoal blazer. The background is a sleek modern office with blue neon accent lights, conveying high-end data analysis and security expertise." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAW_XH6PgBKLV5oP5sJp5WTRaKI4N-0gxs9ea5COrKE5bQ-3eg1owblfb4Zxbxo0gJOqAWEidSpt9hK-4nf5usUFRhtogJTK-mhIyEl2s6p6SQX67xdBkAbfWY9iW_DzhOR1VeOM4Z6J4ZsagCQaiSZDIrWyG7MqCrCyUa6Wu6_cDxPn1OHgPMTd7pJ3P8MdA3TAWgPqSlChfw1DPYJ9FcggcyoJY-s9DAUk-j1PrcT80sBB74Tr8a3"/>
+</div>
+<span class="absolute bottom-0 right-0 bg-secondary rounded-full p-0.5 border-2 border-surface-bright" title="Verified">
+<span class="material-symbols-outlined text-[14px] text-on-secondary" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</span>
+</div>
+<div class="flex flex-col items-end">
+<span class="text-on-secondary-container bg-secondary-container px-3 py-1 rounded-full text-label-sm font-label-sm">Security</span>
+<div class="mt-2 flex items-center gap-1 text-warning">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="text-label-md font-label-md text-on-surface">5.0</span>
+</div>
+</div>
+</div>
+<h3 class="text-body-lg font-bold text-on-surface mb-1 group-hover:text-primary transition-colors">Tasha K.</h3>
+<p class="text-primary font-bold text-body-md mb-3">$75/hr</p>
+<p class="text-on-surface-variant text-body-md font-body-md line-clamp-2 mb-6">Cybersecurity consultant expert in penetration testing, security audits, and cloud infrastructure hardening.</p>
+<div class="mt-auto">
+<button class="w-full py-2 rounded-lg border-2 border-primary text-primary font-label-md text-label-md hover:bg-primary hover:text-on-primary transition-all active:scale-95">Hire Me / Book Now</button>
+</div>
+</div>
+</div>
+<!-- Pagination -->
+<div class="mt-12 flex justify-center items-center gap-4">
+<button class="w-10 h-10 flex items-center justify-center rounded-lg border border-outline text-on-surface-variant hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined">chevron_left</span>
+</button>
+<span class="bg-primary text-on-primary w-10 h-10 flex items-center justify-center rounded-lg font-label-md">1</span>
+<span class="w-10 h-10 flex items-center justify-center rounded-lg border border-outline text-on-surface-variant hover:bg-surface-container transition-colors cursor-pointer font-label-md">2</span>
+<span class="w-10 h-10 flex items-center justify-center rounded-lg border border-outline text-on-surface-variant hover:bg-surface-container transition-colors cursor-pointer font-label-md">3</span>
+<span class="text-on-surface-variant">...</span>
+<span class="w-10 h-10 flex items-center justify-center rounded-lg border border-outline text-on-surface-variant hover:bg-surface-container transition-colors cursor-pointer font-label-md">12</span>
+<button class="w-10 h-10 flex items-center justify-center rounded-lg border border-outline text-on-surface-variant hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</div>
+</div>
+</main>
+<!-- Footer (Shared Component) -->
+<footer class="w-full mt-auto flex flex-col items-center gap-8 px-margin-desktop bg-surface-container dark:bg-surface-container-highest py-12 border-t border-outline dark:border-outline-variant">
+<div class="w-full max-w-6xl grid grid-cols-1 md:grid-cols-4 gap-12">
+<div class="col-span-1 md:col-span-1">
+<div class="text-headline-md font-headline-md font-bold text-on-surface dark:text-on-surface mb-4">Hire Me</div>
+<p class="text-body-md font-body-md text-on-surface-variant mb-6">The world's most trusted marketplace for professional services and freelance excellence.</p>
+</div>
+<div>
+<h4 class="font-bold text-on-surface mb-4 font-label-md uppercase tracking-wider">Marketplace</h4>
+<ul class="flex flex-col gap-3">
+<li><a class="text-on-surface-variant hover:text-primary transition-colors text-label-md font-label-md" href="#">Find Services</a></li>
+<li><a class="text-on-surface-variant hover:text-primary transition-colors text-label-md font-label-md" href="#">Post a Task</a></li>
+<li><a class="text-on-surface-variant hover:text-primary transition-colors text-label-md font-label-md" href="#">Trust &amp; Safety</a></li>
+</ul>
+</div>
+<div>
+<h4 class="font-bold text-on-surface mb-4 font-label-md uppercase tracking-wider">Company</h4>
+<ul class="flex flex-col gap-3">
+<li><a class="text-on-surface-variant hover:text-primary transition-colors text-label-md font-label-md" href="#">Career Opportunities</a></li>
+<li><a class="text-on-surface-variant hover:text-primary transition-colors text-label-md font-label-md" href="#">Help Center</a></li>
+<li><a class="text-on-surface-variant hover:text-primary transition-colors text-label-md font-label-md" href="#">Terms of Service</a></li>
+</ul>
+</div>
+<div>
+<h4 class="font-bold text-on-surface mb-4 font-label-md uppercase tracking-wider">Newsletter</h4>
+<div class="flex gap-2">
+<input class="flex-1 px-3 py-2 rounded-lg border border-outline bg-surface-bright focus:ring-2 focus:ring-primary outline-none text-label-sm" placeholder="Email" type="email"/>
+<button class="bg-primary text-on-primary px-4 py-2 rounded-lg material-symbols-outlined" data-icon="send">send</button>
+</div>
+</div>
+</div>
+<div class="w-full max-w-6xl pt-8 border-t border-outline flex flex-col md:flex-row justify-between items-center gap-4">
+<p class="text-label-sm font-label-sm text-on-surface-variant">© 2024 Hire Me Marketplace. All rights reserved.</p>
+<div class="flex gap-6">
+<a class="text-on-surface-variant hover:text-primary transition-colors text-label-sm" href="#">Privacy Policy</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors text-label-sm" href="#">Cookies</a>
+</div>
+</div>
+</footer>
+<script>
+        // Micro-interactions
+        document.querySelectorAll('.group').forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                card.classList.add('scale-[1.02]');
+                card.style.transition = 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
+            });
+            card.addEventListener('mouseleave', () => {
+                card.classList.remove('scale-[1.02]');
+            });
+        });
+
+        // Search Filter Interaction (Visual only)
+        const inputs = document.querySelectorAll('input, select');
+        inputs.forEach(input => {
+            input.addEventListener('focus', () => {
+                input.closest('div').classList.add('bg-primary-fixed/10');
+            });
+            input.addEventListener('blur', () => {
+                input.closest('div').classList.remove('bg-primary-fixed/10');
+            });
+        });
+    </script>
+</body></html>

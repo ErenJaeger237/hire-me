@@ -35,6 +35,17 @@ class UserController {
       res.status(error.statusCode || 500).json({ error: error.message || 'Failed to update profile' });
     }
   }
+
+  async upgradeToProvider(req, res) {
+    try {
+      const { trade, hourlyRate } = req.body;
+      const result = await userService.upgradeToProvider(req.user.id, trade, hourlyRate);
+      res.json(result);
+    } catch (error) {
+      console.error(error);
+      res.status(error.statusCode || 500).json({ error: error.message || 'Failed to upgrade to professional' });
+    }
+  }
 }
 
 module.exports = new UserController();

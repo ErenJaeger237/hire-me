@@ -83,6 +83,36 @@ class UserService {
 
     return { message: 'Profile updated successfully', user };
   }
+
+  async upgradeToProvider(userId, trade, hourlyRate) {
+    const userRecord = await User.findByPk(userId);
+    if (!userRecord) {
+      throw Object.assign(new Error('User not found'), { statusCode: 404 });
+    }
+    if (userRecord.role === 'PROVIDER') {
+      throw Object.assign(new Error('User is already a provider'), { statusCode: 400 });
+    }
+
+    userRecord.role = 'PROVIDER';
+    await userRecord.save();
+
+    const profile = await ProviderProfile.create({
+      user_id: userRecord.id,
+      trade: trade || 'General Service',
+      hourly_rate: hourlyRate || 25.0,
+      bio: 'Professional service provider.'
+    });
+
+    const UserClass = require('../classes/UserClass');
+    const userInstance = new UserClass(userRecord.toJSON());
+    const token = userInstance.generateAuthToken();
+
+    return { 
+      message: 'Successfully upgraded to Professional', 
+      token, 
+      user: { ...userInstance.toJSON(), profile: profile.toJSON() } 
+    };
+  }
 }
 
 module.exports = new UserService();

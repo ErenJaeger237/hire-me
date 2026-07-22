@@ -231,8 +231,18 @@ export default function ClientDashboard({ user }) {
             <h2 className="text-2xl font-bold text-on-surface mb-6 border-t border-outline pt-12">My Booking History</h2>
             
             {bookings.length === 0 ? (
-              <div className="bg-surface-bright rounded-xl p-8 text-center text-on-surface-variant border border-outline">
-                You haven't requested any jobs yet.
+              <div className="bg-surface-bright rounded-2xl p-12 text-center flex flex-col items-center justify-center border border-outline border-dashed shadow-sm">
+                <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mb-4">
+                  <UserCheck className="w-8 h-8 text-blue-500" />
+                </div>
+                <h3 className="text-xl font-extrabold text-on-surface mb-2">You haven't hired anyone yet!</h3>
+                <p className="text-on-surface-variant max-w-sm mb-6">When you book a professional, their details and progress will appear here. Start by browsing our top-rated local experts.</p>
+                <button 
+                  onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                  className="bg-primary text-on-primary px-6 py-2.5 rounded-lg font-bold hover:bg-opacity-90 transition-all shadow-md active:scale-95"
+                >
+                  Browse Professionals
+                </button>
               </div>
             ) : (
               <div className="bg-surface-bright rounded-xl border border-outline overflow-hidden shadow-sm">

@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Hire Me - Rate Your Experience</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-secondary-container": "#00714d",
+                    "tertiary": "#943700",
+                    "primary": "#004ac6",
+                    "on-tertiary": "#ffffff",
+                    "surface-container-lowest": "#FFFFFF",
+                    "surface-container-highest": "#CBD5E1",
+                    "tertiary-fixed": "#ffdbcd",
+                    "surface": "#F8FAFC",
+                    "on-error-container": "#93000a",
+                    "outline": "#E2E8F0",
+                    "primary-fixed-dim": "#b4c5ff",
+                    "surface-bright": "#faf8ff",
+                    "surface-dim": "#d9d9e5",
+                    "inverse-on-surface": "#f0f0fb",
+                    "outline-variant": "#c3c6d7",
+                    "secondary": "#006c49",
+                    "tertiary-container": "#bc4800",
+                    "surface-container": "#F1F5F9",
+                    "background": "#faf8ff",
+                    "error": "#EF4444",
+                    "surface-tint": "#0053db",
+                    "on-tertiary-fixed": "#360f00",
+                    "error-container": "#ffdad6",
+                    "on-primary-fixed": "#00174b",
+                    "on-surface": "#191b23",
+                    "on-secondary-fixed": "#002113",
+                    "inverse-primary": "#b4c5ff",
+                    "on-surface-variant": "#64748B",
+                    "secondary-container": "#6cf8bb",
+                    "surface-container-high": "#e7e7f3",
+                    "on-tertiary-container": "#ffede6",
+                    "surface-container-low": "#F8FAFC",
+                    "primary-fixed": "#dbe1ff",
+                    "secondary-fixed": "#6ffbbe",
+                    "secondary-fixed-dim": "#4edea3",
+                    "tertiary-fixed-dim": "#ffb596",
+                    "warning": "#F59E0B",
+                    "on-secondary": "#ffffff",
+                    "on-primary": "#ffffff",
+                    "primary-container": "#2563eb",
+                    "on-secondary-fixed-variant": "#005236",
+                    "on-primary-container": "#eeefff",
+                    "on-error": "#ffffff",
+                    "inverse-surface": "#2e3039",
+                    "on-background": "#191b23",
+                    "on-primary-fixed-variant": "#003ea8",
+                    "on-tertiary-fixed-variant": "#7d2d00",
+                    "surface-variant": "#e1e2ed"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "xs": "8px",
+                    "xxs": "4px",
+                    "base": "4px",
+                    "lg": "24px",
+                    "md": "16px",
+                    "margin-mobile": "16px",
+                    "sm": "12px",
+                    "xl": "32px",
+                    "gutter": "16px",
+                    "margin-desktop": "32px"
+            },
+            "fontFamily": {
+                    "body-md": ["Inter"],
+                    "headline-lg": ["Inter"],
+                    "label-md": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "headline-xl": ["Inter"],
+                    "headline-xl-mobile": ["Inter"],
+                    "label-sm": ["Inter"],
+                    "headline-md": ["Inter"]
+            },
+            "fontSize": {
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                    "label-md": ["14px", {"lineHeight": "20px", "fontWeight": "500"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "headline-xl": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "headline-xl-mobile": ["36px", {"lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "700"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F8FAFC;
+            color: #191b23;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        .star-rating .material-symbols-outlined {
+            font-size: 48px;
+            transition: transform 0.2s ease, color 0.2s ease;
+            cursor: pointer;
+        }
+        .star-rating .material-symbols-outlined:hover {
+            transform: scale(1.1);
+        }
+        .bento-bg {
+            background-image: radial-gradient(circle at 2px 2px, #E2E8F0 1px, transparent 0);
+            background-size: 24px 24px;
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface">
+<!-- TopNavBar -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-margin-desktop bg-surface-bright dark:bg-inverse-surface h-16 shadow-sm border-b border-outline dark:border-outline-variant">
+<div class="flex items-center gap-2 text-headline-md font-headline-md font-bold text-primary dark:text-inverse-primary cursor-pointer active:opacity-80 transition-opacity">
+            Hire Me
+        </div>
+<nav class="hidden md:flex items-center gap-xl">
+<a class="text-on-surface-variant dark:text-surface-variant font-medium hover:text-primary dark:hover:text-inverse-primary transition-colors duration-200 cursor-pointer" href="#">Find Services</a>
+<a class="text-on-surface-variant dark:text-surface-variant font-medium hover:text-primary dark:hover:text-inverse-primary transition-colors duration-200 cursor-pointer" href="#">How It Works</a>
+<a class="text-on-surface-variant dark:text-surface-variant font-medium hover:text-primary dark:hover:text-inverse-primary transition-colors duration-200 cursor-pointer" href="#">Become a Professional</a>
+</nav>
+<div class="flex items-center gap-md">
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors">notifications</button>
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors">chat_bubble</button>
+<div class="w-8 h-8 rounded-full bg-outline overflow-hidden border border-outline">
+<img class="w-full h-full object-cover" data-alt="A professional headshot of a smiling young adult with warm lighting, against a clean studio background. The style is modern, professional, and trustworthy, matching a corporate SaaS aesthetic with soft blue and white highlights." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDPWWXhsU6OqeAAGCgPH6_v-nKzFXzipb2_Jd2jugx9vumbemGSpqIZbzDJakXqxxIHK-Wns0efnwVSVUS4_cBdStvh1ZjOlJUekq52aw6M3h7bI8irp0229aCjfhNx4-AnYUjReLvc2cTaAwZqBsfdZbVsx_1aCYl86osVA4vRaAFQgz_jy8taxB-FPmazEqy1BldeGJro37ShIeBHgEm8lhl_DKHHQppdRKR89JysAvusamPF7V6O"/>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-grow pt-24 pb-16 px-margin-mobile md:px-margin-desktop bento-bg flex items-center justify-center">
+<!-- Focused Review Card -->
+<div class="max-w-2xl w-full bg-surface-bright rounded-xl shadow-sm border border-outline overflow-hidden relative">
+<!-- Header/Hero Section of Card -->
+<div class="p-xl bg-primary-container text-on-primary-container flex flex-col items-center text-center gap-md">
+<div class="w-20 h-20 rounded-full border-4 border-on-primary-container/20 shadow-lg overflow-hidden bg-surface-container">
+<img class="w-full h-full object-cover" data-alt="A portrait of a skilled handyman wearing a professional uniform, standing confidently in a well-lit workshop environment. The lighting is crisp and natural, highlighting a friendly and reliable demeanor. The overall aesthetic is clean and professional, using a corporate blue and white color palette." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCTIIsq9b_yYl3B6uNPU8bbBWTElSeEgTNVZV5tCOHvm73H7gCLhdBNwE6hxWLDBOAGUI2wolP--68f1gRANi6wOMuss_H8_6M1_VfpXrYgK4B_UtcyIpKus4xXXyTNe7S3StqmN4wMTFuf1NRy6siehW2_Gox7kMd1zbXlSCw67Yjctcj2P8AZfKNMh8a0mLyufR2cbVoAzhZQ6Xg7MfYmkeXR6XoTe5vy2flOIal8SR9m_WYsTxVe"/>
+</div>
+<div>
+<h1 class="text-headline-md font-headline-md mb-xs">Rate your experience with Alex Rivers</h1>
+<p class="text-body-md opacity-90">Job completed on Oct 24, 2024 • Plumbing Repair</p>
+</div>
+</div>
+<!-- Form Content -->
+<div class="p-xl space-y-xl">
+<!-- Star Rating System -->
+<div class="flex flex-col items-center gap-sm">
+<span class="text-label-md font-label-md text-on-surface-variant uppercase tracking-wider">Overall Quality</span>
+<div class="star-rating flex gap-xs text-outline-variant" id="starContainer">
+<button class="material-symbols-outlined transition-colors duration-200" data-star="1" onclick="setRating(1)" type="button">star</button>
+<button class="material-symbols-outlined transition-colors duration-200" data-star="2" onclick="setRating(2)" type="button">star</button>
+<button class="material-symbols-outlined transition-colors duration-200" data-star="3" onclick="setRating(3)" type="button">star</button>
+<button class="material-symbols-outlined transition-colors duration-200" data-star="4" onclick="setRating(4)" type="button">star</button>
+<button class="material-symbols-outlined transition-colors duration-200" data-star="5" onclick="setRating(5)" type="button">star</button>
+</div>
+<p class="text-body-md font-medium text-primary h-6 italic" id="ratingFeedback">Select a rating</p>
+</div>
+<!-- Review Textarea -->
+<div class="space-y-xs">
+<label class="text-label-md font-label-md text-on-surface" for="review-text">Share more about your experience (optional)</label>
+<textarea class="w-full p-md bg-surface border border-outline rounded-lg focus:ring-2 focus:ring-primary focus:border-primary text-body-md outline-none transition-all resize-none" id="review-text" placeholder="What did Alex do well? Was the task completed on time?" rows="4"></textarea>
+</div>
+<!-- Quick Tags (Contextual UX) -->
+<div class="space-y-xs">
+<span class="text-label-md font-label-md text-on-surface-variant">What stood out?</span>
+<div class="flex flex-wrap gap-xs">
+<button class="px-sm py-xxs rounded-full border border-outline bg-surface-container-high text-label-md hover:bg-primary-container hover:text-on-primary-container transition-colors">Punctuality</button>
+<button class="px-sm py-xxs rounded-full border border-outline bg-surface-container-high text-label-md hover:bg-primary-container hover:text-on-primary-container transition-colors">Expertise</button>
+<button class="px-sm py-xxs rounded-full border border-outline bg-surface-container-high text-label-md hover:bg-primary-container hover:text-on-primary-container transition-colors">Cleanliness</button>
+<button class="px-sm py-xxs rounded-full border border-outline bg-surface-container-high text-label-md hover:bg-primary-container hover:text-on-primary-container transition-colors">Communication</button>
+</div>
+</div>
+<!-- Action Button -->
+<button class="w-full py-md bg-secondary text-on-secondary rounded-lg font-bold text-body-lg hover:bg-on-secondary-fixed-variant active:scale-[0.98] transition-all shadow-sm flex items-center justify-center gap-sm" id="submitBtn">
+                    Submit Review
+                    <span class="material-symbols-outlined">send</span>
+</button>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="w-full mt-auto flex flex-col items-center gap-8 px-margin-desktop py-12 bg-surface-container border-t border-outline">
+<div class="flex flex-col md:flex-row justify-between w-full max-w-7xl gap-8">
+<div class="flex flex-col gap-xs">
+<span class="text-headline-md font-headline-md font-bold text-on-surface">Hire Me</span>
+<p class="text-body-md text-on-surface-variant max-w-xs">Connecting talented professionals with people who need to get things done. Quality guaranteed.</p>
+</div>
+<div class="grid grid-cols-2 sm:grid-cols-3 gap-xl">
+<div class="flex flex-col gap-xs">
+<span class="font-bold text-label-md text-on-surface">Marketplace</span>
+<a class="text-label-sm text-on-surface-variant hover:text-primary transition-colors" href="#">Trust &amp; Safety</a>
+<a class="text-label-sm text-on-surface-variant hover:text-primary transition-colors" href="#">Help Center</a>
+</div>
+<div class="flex flex-col gap-xs">
+<span class="font-bold text-label-md text-on-surface">Legal</span>
+<a class="text-label-sm text-on-surface-variant hover:text-primary transition-colors" href="#">Terms of Service</a>
+<a class="text-label-sm text-on-surface-variant hover:text-primary transition-colors" href="#">Privacy Policy</a>
+</div>
+<div class="flex flex-col gap-xs">
+<span class="font-bold text-label-md text-on-surface">Company</span>
+<a class="text-label-sm text-on-surface-variant hover:text-primary transition-colors" href="#">Career Opportunities</a>
+</div>
+</div>
+</div>
+<div class="w-full border-t border-outline-variant/30 pt-8 flex justify-center">
+<p class="text-label-sm text-on-surface-variant">© 2024 Hire Me Marketplace. All rights reserved.</p>
+</div>
+</footer>
+<script>
+        let currentRating = 0;
+        const feedbackMessages = [
+            "Select a rating",
+            "Disappointing - Needs improvement",
+            "Below average - Could be better",
+            "Good - Met expectations",
+            "Great - Highly recommend",
+            "Excellent - Exceeded expectations"
+        ];
+
+        function setRating(rating) {
+            currentRating = rating;
+            const stars = document.querySelectorAll('[data-star]');
+            const feedbackText = document.getElementById('ratingFeedback');
+            
+            stars.forEach((star, index) => {
+                if (index < rating) {
+                    star.classList.add('text-warning');
+                    star.classList.remove('text-outline-variant');
+                    star.style.fontVariationSettings = "'FILL' 1";
+                } else {
+                    star.classList.remove('text-warning');
+                    star.classList.add('text-outline-variant');
+                    star.style.fontVariationSettings = "'FILL' 0";
+                }
+            });
+
+            feedbackText.textContent = feedbackMessages[rating];
+        }
+
+        // Tag selection toggle
+        document.querySelectorAll('.flex.wrap button').forEach(btn => {
+            btn.addEventListener('click', () => {
+                btn.classList.toggle('bg-primary-container');
+                btn.classList.toggle('text-on-primary-container');
+                btn.classList.toggle('bg-surface-container-high');
+            });
+        });
+
+        // Submit Interaction
+        const submitBtn = document.getElementById('submitBtn');
+        submitBtn.addEventListener('click', () => {
+            if (currentRating === 0) {
+                alert('Please select a star rating before submitting.');
+                return;
+            }
+            
+            submitBtn.innerHTML = '<span class="material-symbols-outlined animate-spin">sync</span> Submitting...';
+            submitBtn.disabled = true;
+            submitBtn.classList.add('opacity-70');
+
+            setTimeout(() => {
+                submitBtn.innerHTML = 'Review Submitted! <span class="material-symbols-outlined">check_circle</span>';
+                submitBtn.classList.remove('bg-secondary');
+                submitBtn.classList.add('bg-on-secondary-container');
+                
+                // Confetti simulation or subtle success animation could go here
+                setTimeout(() => {
+                    alert('Thank you for your feedback! Your review helps the community grow.');
+                    window.location.reload();
+                }, 1000);
+            }, 1500);
+        });
+    </script>
+</body></html>

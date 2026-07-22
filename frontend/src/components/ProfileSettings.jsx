@@ -22,6 +22,10 @@ export default function ProfileSettings({ currentUser, onClose, onUserUpdate }) 
   });
   const fileInputRef = React.useRef(null);
   const [uploadingImage, setUploadingImage] = useState(false);
+  
+  const [showUpgradeForm, setShowUpgradeForm] = useState(false);
+  const [upgradeData, setUpgradeData] = useState({ trade: '', hourlyRate: '' });
+  const [upgrading, setUpgrading] = useState(false);
 
   useEffect(() => {
     fetchProfile();
@@ -58,9 +62,28 @@ export default function ProfileSettings({ currentUser, onClose, onUserUpdate }) 
       }
       setTimeout(() => setSuccess(false), 3000);
     } catch (err) {
-      console.error('Error updating profile:', err);
+      console.error('Error saving profile:', err);
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleUpgrade = async () => {
+    if (!upgradeData.trade || !upgradeData.hourlyRate) return alert('Please enter your trade and hourly rate.');
+    setUpgrading(true);
+    try {
+      const res = await axios.post(`${API_BASE_URL}/users/upgrade-to-provider`, {
+        trade: upgradeData.trade,
+        hourlyRate: parseFloat(upgradeData.hourlyRate)
+      }, getAuthHeaders());
+      
+      localStorage.setItem('hire_me_token', res.data.token);
+      window.location.href = '/provider';
+    } catch (err) {
+      console.error('Error upgrading:', err);
+      alert(err.response?.data?.error || 'Failed to upgrade to professional.');
+    } finally {
+      setUpgrading(false);
     }
   };
 
@@ -231,6 +254,34 @@ export default function ProfileSettings({ currentUser, onClose, onUserUpdate }) 
                       />
                     </div>
                   </div>
+                </div>
+              )}
+
+              {user.role === 'CLIENT' && (
+                <div className="pt-6 border-t border-outline col-span-2">
+                  <h3 className="text-lg font-bold text-on-surface mb-2">Become a Professional</h3>
+                  <p className="text-sm text-on-surface-variant mb-4">Want to offer your own services? Upgrade your account instantly.</p>
+                  
+                  {!showUpgradeForm ? (
+                    <button type="button" onClick={() => setShowUpgradeForm(true)} className="px-4 py-2 bg-emerald-100 text-emerald-700 rounded-lg text-sm font-bold hover:bg-emerald-200 transition-colors">
+                      Start Offering Services
+                    </button>
+                  ) : (
+                    <div className="bg-surface-container-highest p-4 rounded-xl border border-outline space-y-4">
+                      <div>
+                        <label className="text-xs font-bold text-on-surface mb-1 block">What is your Trade?</label>
+                        <input type="text" placeholder="e.g. Electrician, Tutor" value={upgradeData.trade} onChange={e => setUpgradeData({...upgradeData, trade: e.target.value})} className="w-full bg-surface border border-outline px-3 py-2 rounded-lg text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none" />
+                      </div>
+                      <div>
+                        <label className="text-xs font-bold text-on-surface mb-1 block">Hourly Rate (FCFA)</label>
+                        <input type="number" placeholder="e.g. 2500" value={upgradeData.hourlyRate} onChange={e => setUpgradeData({...upgradeData, hourlyRate: e.target.value})} className="w-full bg-surface border border-outline px-3 py-2 rounded-lg text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none" />
+                      </div>
+                      <div className="flex gap-2 justify-end">
+                        <button type="button" onClick={() => setShowUpgradeForm(false)} className="px-3 py-1.5 text-xs font-bold text-on-surface-variant">Cancel</button>
+                        <button type="button" onClick={handleUpgrade} disabled={upgrading} className="px-3 py-1.5 bg-primary text-on-primary rounded-lg text-xs font-bold hover:bg-opacity-90">{upgrading ? 'Upgrading...' : 'Confirm Upgrade'}</button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
 

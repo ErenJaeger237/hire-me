@@ -209,6 +209,7 @@ app.post('/api/bookings/:id/review', authenticateToken, bookingController.addRev
 // User Profile routes
 app.get('/api/users/profile', authenticateToken, userController.getProfile);
 app.put('/api/users/profile', authenticateToken, userController.updateProfile);
+app.post('/api/users/upgrade-to-provider', authenticateToken, userController.upgradeToProvider);
 app.get('/api/users/notifications', authenticateToken, userController.getNotifications);
 
 app.post('/api/users/profile/upload', authenticateToken, upload.single('profile_picture'), async (req, res) => {
