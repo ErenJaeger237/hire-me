@@ -27,10 +27,10 @@ export default function ChatModal({ booking, isOpen, onClose, currentUser }) {
 
     socketRef.current.on('connect', () => {
       console.log('Chat socket connected:', socketRef.current.id);
-      socketRef.current.emit('joinRoom', booking.id);
+      socketRef.current.emit('join_booking', booking.id);
     });
 
-    socketRef.current.on('receiveMessage', (msg) => {
+    socketRef.current.on('new_message', (msg) => {
       setMessages((prev) => [...prev, msg]);
       setTimeout(scrollToBottom, 100);
     });
@@ -44,7 +44,7 @@ export default function ChatModal({ booking, isOpen, onClose, currentUser }) {
       setLoading(true);
       try {
         const res = await axios.get(`${API_BASE_URL}/bookings/${booking.id}/messages`, getAuthHeaders());
-        setMessages(res.data.messages);
+        setMessages(Array.isArray(res.data) ? res.data : (res.data.messages || []));
         setTimeout(scrollToBottom, 100);
       } catch (err) {
         console.error('Failed to fetch messages:', err);
