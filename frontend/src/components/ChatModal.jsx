@@ -16,12 +16,6 @@ export default function ChatModal({ booking, isOpen, onClose, currentUser }) {
   const messagesEndRef = useRef(null);
   const socketRef = useRef(null);
 
-  useEffect(() => {
-    if (isOpen && booking) {
-      fetchMessages();
-
-      // Initialize Socket.io connection
-      socketRef.current = io('http://localhost:5000');
   const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
   const SOCKET_URL = API_BASE_URL.replace('/api', '');
 
