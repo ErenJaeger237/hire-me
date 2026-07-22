@@ -15,6 +15,20 @@ export default function BookingModal({ provider, isOpen, onClose, onSuccess }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+
+    // Pre-flight Wallet Balance Check
+    const userStr = localStorage.getItem('hire_me_user');
+    let walletBalance = 0;
+    if (userStr) {
+      try {
+        walletBalance = JSON.parse(userStr).wallet_balance || 0;
+      } catch(e) {}
+    }
+    
+    if (walletBalance < provider.hourly_rate) {
+      setError(`Insufficient wallet balance. You have ${walletBalance} FCFA but need ${provider.hourly_rate} FCFA. Please top up your wallet first.`);
+      return;
+    }
     
     if (!jobDate || !jobTime) {
       setError('Please select both a date and time.');
@@ -145,7 +159,8 @@ export default function BookingModal({ provider, isOpen, onClose, onSuccess }) {
               <button
                 type="button"
                 onClick={onClose}
-                className="px-6 py-2 text-sm font-medium text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-colors"
+                disabled={isSubmitting}
+                className="px-6 py-2 text-sm font-medium text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Cancel
               </button>

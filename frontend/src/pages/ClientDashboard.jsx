@@ -171,7 +171,24 @@ export default function ClientDashboard({ user }) {
           </div>
 
           {loading ? (
-            <div className="text-center py-12 text-on-surface-variant">Loading service professionals...</div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {[1, 2, 3, 4, 5, 6].map(i => (
+                <div key={i} className="bg-surface-bright rounded-2xl p-6 border border-outline animate-pulse">
+                  <div className="flex justify-between items-start mb-4">
+                    <div className="flex gap-4">
+                      <div className="w-16 h-16 rounded-full bg-surface-container" />
+                      <div className="space-y-2 pt-2">
+                        <div className="h-4 bg-surface-container rounded w-24" />
+                        <div className="h-3 bg-surface-container rounded w-16" />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="h-3 bg-surface-container rounded mb-2 w-3/4" />
+                  <div className="h-3 bg-surface-container rounded w-1/2 mb-6" />
+                  <div className="h-10 bg-surface-container rounded-xl w-full" />
+                </div>
+              ))}
+            </div>
           ) : providers.length === 0 ? (
             <div className="bg-surface-bright rounded-xl p-8 text-center text-on-surface-variant border border-outline">
               No service providers match your current search criteria.
@@ -332,6 +349,7 @@ export default function ClientDashboard({ user }) {
         booking={selectedBookingForReview}
         isOpen={isReviewModalOpen}
         onClose={() => { setIsReviewModalOpen(false); fetchBookings(); fetchProviders(); }}
+        onSuccess={() => { /* no-op for now, until toast is added */ }}
       />
     </div>
   );

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Clock, CheckCircle2, XCircle, Award, Calendar, DollarSign, RefreshCw, AlertCircle, MessageSquare, Star } from 'lucide-react';
+import { Clock, CheckCircle2, XCircle, Award, Calendar, DollarSign, RefreshCw, AlertCircle, MessageSquare, Star, Loader2 } from 'lucide-react';
 import { bookingService } from '../services/api';
 import ChatModal from '../components/ChatModal';
 
@@ -30,13 +30,22 @@ export default function ProviderDashboard({ user }) {
     fetchProviderBookings();
   }, []);
 
+  const [loadingBookingId, setLoadingBookingId] = useState(null);
+  const [cardErrors, setCardErrors] = useState({});
+
   const handleUpdateStatus = async (bookingId, newStatus) => {
-    setActionError('');
+    setLoadingBookingId(bookingId);
+    setCardErrors((prev) => ({ ...prev, [bookingId]: '' }));
     try {
       await bookingService.updateStatus(bookingId, newStatus);
       fetchProviderBookings();
     } catch (err) {
-      setActionError(err.response?.data?.error || `Failed to update status to ${newStatus}.`);
+      setCardErrors((prev) => ({
+        ...prev,
+        [bookingId]: err.response?.data?.error || `Failed to ${newStatus.toLowerCase()} booking.`,
+      }));
+    } finally {
+      setLoadingBookingId(null);
     }
   };
 
@@ -105,17 +114,23 @@ export default function ProviderDashboard({ user }) {
                     </button>
                     <button
                       onClick={() => handleUpdateStatus(b.id, 'ACCEPTED')}
-                      className="flex-1 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs shadow-md shadow-emerald-500/20 transition-all flex items-center justify-center gap-1.5"
+                      disabled={loadingBookingId === b.id}
+                      className={`flex-1 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs shadow-md shadow-emerald-500/20 transition-all flex items-center justify-center gap-1.5 ${loadingBookingId === b.id ? 'opacity-70 cursor-not-allowed' : ''}`}
                     >
-                      <CheckCircle2 className="w-3.5 h-3.5" /> Accept
+                      {loadingBookingId === b.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle2 className="w-3.5 h-3.5" />}
+                      {loadingBookingId === b.id ? '...' : 'Accept'}
                     </button>
                     <button
                       onClick={() => handleUpdateStatus(b.id, 'REJECTED')}
-                      className="flex-1 py-2 rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-100 font-bold text-xs transition-colors flex items-center justify-center gap-1.5"
+                      disabled={loadingBookingId === b.id}
+                      className={`flex-1 py-2 rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-100 font-bold text-xs transition-colors flex items-center justify-center gap-1.5 ${loadingBookingId === b.id ? 'opacity-70 cursor-not-allowed' : ''}`}
                     >
                       <XCircle className="w-3.5 h-3.5" /> Reject
                     </button>
                   </div>
+                  {cardErrors[b.id] && (
+                    <p className="text-xs text-rose-600 font-medium">{cardErrors[b.id]}</p>
+                  )}
                 </div>
               ))
             )}
