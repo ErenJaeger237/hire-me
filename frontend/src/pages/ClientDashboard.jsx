@@ -28,6 +28,7 @@ export default function ClientDashboard({ user }) {
 
   const [loading, setLoading] = useState(true);
   const [feedbackMsg, setFeedbackMsg] = useState('');
+  const [updatingBookingId, setUpdatingBookingId] = useState(null);
 
   const fetchProviders = async () => {
     try {
@@ -56,10 +57,24 @@ export default function ClientDashboard({ user }) {
 
   const fetchBookings = async () => {
     try {
-      const data = await bookingService.getBookings();
-      setBookings(data.bookings || data);
+      const res = await bookingService.getBookings();
+      setBookings(res.bookings || []);
     } catch (err) {
-      console.error('Error fetching bookings:', err);
+      console.error('Failed to fetch bookings:', err);
+    }
+  };
+
+  const handleUpdateStatus = async (bookingId, newStatus) => {
+    setUpdatingBookingId(bookingId);
+    try {
+      await bookingService.updateStatus(bookingId, newStatus);
+      fetchBookings();
+      setFeedbackMsg(`Job successfully marked as ${newStatus}!`);
+      setTimeout(() => setFeedbackMsg(''), 3000);
+    } catch (err) {
+      alert(err.response?.data?.error || `Failed to update booking.`);
+    } finally {
+      setUpdatingBookingId(null);
     }
   };
 
@@ -310,6 +325,15 @@ export default function ClientDashboard({ user }) {
                               >
                                 Open Chat
                               </button>
+                              {b.status === 'ACCEPTED' && (
+                                <button
+                                  onClick={() => handleUpdateStatus(b.id, 'COMPLETED')}
+                                  disabled={updatingBookingId === b.id}
+                                  className={`text-xs font-bold bg-emerald-600 text-white hover:bg-emerald-700 transition-colors px-3 py-1.5 rounded-lg flex items-center justify-center gap-1.5 ${updatingBookingId === b.id ? 'opacity-70' : ''}`}
+                                >
+                                  {updatingBookingId === b.id ? '...' : <><CheckCircle className="w-3.5 h-3.5" /> Mark Completed</>}
+                                </button>
+                              )}
                               {b.status === 'COMPLETED' && b.rating === null && (
                                 <button
                                   onClick={() => { setSelectedBookingForReview(b); setIsReviewModalOpen(true); }}

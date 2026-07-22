@@ -55,19 +55,34 @@ const storage = multer.diskStorage({
   }
 });
 
-const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
-const fileFilter = (req, file, cb) => {
-  if (ALLOWED_MIME_TYPES.includes(file.mimetype)) {
+const ALLOWED_IMAGE_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+const imageFileFilter = (req, file, cb) => {
+  if (ALLOWED_IMAGE_MIME_TYPES.includes(file.mimetype)) {
     cb(null, true);
   } else {
     cb(new Error('Only JPG, PNG, and WEBP images are allowed.'), false);
   }
 };
 
-const upload = multer({ 
+const ALLOWED_DOC_MIME_TYPES = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', ...ALLOWED_IMAGE_MIME_TYPES];
+const docFileFilter = (req, file, cb) => {
+  if (ALLOWED_DOC_MIME_TYPES.includes(file.mimetype)) {
+    cb(null, true);
+  } else {
+    cb(new Error('Only PDF, DOC, DOCX, and images are allowed.'), false);
+  }
+};
+
+const imageUpload = multer({ 
   storage, 
-  fileFilter, 
+  fileFilter: imageFileFilter, 
   limits: { fileSize: 5 * 1024 * 1024 } 
+});
+
+const docUpload = multer({ 
+  storage, 
+  fileFilter: docFileFilter, 
+  limits: { fileSize: 10 * 1024 * 1024 } 
 });
 
 // Security Middleware
@@ -226,7 +241,7 @@ app.put('/api/users/profile', authenticateToken, userController.updateProfile);
 app.post('/api/users/upgrade-to-provider', authenticateToken, userController.upgradeToProvider);
 app.get('/api/users/notifications', authenticateToken, userController.getNotifications);
 
-app.post('/api/users/profile/upload', authenticateToken, upload.single('profile_picture'), async (req, res) => {
+app.post('/api/users/profile/upload', authenticateToken, imageUpload.single('profile_picture'), async (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ error: 'No file uploaded.' });
     
@@ -243,7 +258,7 @@ app.post('/api/users/profile/upload', authenticateToken, upload.single('profile_
   }
 });
 
-app.post('/api/users/profile/document', authenticateToken, upload.single('verification_doc'), async (req, res) => {
+app.post('/api/users/profile/document', authenticateToken, docUpload.single('verification_doc'), async (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ error: 'No file uploaded.' });
     const fileUrl = `http://localhost:${PORT}/uploads/${req.file.filename}`;

@@ -181,12 +181,11 @@ export default function ProviderDashboard({ user }) {
                   <p className="text-xs text-slate-700 bg-slate-50 p-2.5 rounded-lg border border-slate-100">
                     {b.description || 'In progress job.'}
                   </p>
-                  <button
-                    onClick={() => handleUpdateStatus(b.id, 'COMPLETED')}
-                    className="w-full py-2 rounded-lg bg-sky-600 hover:bg-sky-500 text-white font-semibold text-xs transition-colors flex items-center justify-center gap-1"
-                  >
-                    <Award className="w-3.5 h-3.5" /> Mark Job Completed
-                  </button>
+                  {b.status === 'ACCEPTED' && (
+                    <div className="w-full py-2 rounded-lg bg-emerald-50 text-emerald-700 font-semibold text-xs border border-emerald-200 flex items-center justify-center gap-1">
+                      <CheckCircle2 className="w-3.5 h-3.5" /> Waiting for Client to Mark Completed
+                    </div>
+                  )}
                 </div>
               ))
             )}
