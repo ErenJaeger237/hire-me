@@ -223,7 +223,7 @@ export default function ProfileSettings({ currentUser, onClose, onUserUpdate }) 
                 </>
               )}
 
-              {user.role === 'PROVIDER' && (
+              {currentUser.role === 'PROVIDER' && (
                 <div className="pt-6 border-t border-outline col-span-2">
                   <h3 className="text-lg font-bold text-on-surface mb-4">Verification Document</h3>
                   <div className="flex items-center gap-4">
@@ -257,7 +257,7 @@ export default function ProfileSettings({ currentUser, onClose, onUserUpdate }) 
                 </div>
               )}
 
-              {user.role === 'CLIENT' && (
+              {currentUser.role === 'CLIENT' && (
                 <div className="pt-6 border-t border-outline col-span-2">
                   <h3 className="text-lg font-bold text-on-surface mb-2">Become a Professional</h3>
                   <p className="text-sm text-on-surface-variant mb-4">Want to offer your own services? Upgrade your account instantly.</p>
