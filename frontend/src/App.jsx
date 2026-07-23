@@ -5,6 +5,7 @@ import LandingAuth from './pages/LandingAuth';
 import ClientDashboard from './pages/ClientDashboard';
 import ProviderDashboard from './pages/ProviderDashboard';
 import AdminDashboard from './pages/AdminDashboard';
+import ProviderPublicProfile from './pages/ProviderPublicProfile';
 import ErrorBoundary from './components/ErrorBoundary';
 
 export default function App() {
@@ -84,6 +85,10 @@ export default function App() {
                   <Navigate to="/" replace />
                 )
               }
+            />
+            <Route
+              path="/provider/:id"
+              element={<ProviderPublicProfile user={user} />}
             />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Route>

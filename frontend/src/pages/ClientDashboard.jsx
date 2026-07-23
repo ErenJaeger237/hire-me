@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Search, Filter, Star, Calendar, DollarSign, Clock, CheckCircle, AlertCircle, RefreshCw, ChevronDown, CheckCircle2, UserCheck } from 'lucide-react';
 import { providerService, bookingService, userService } from '../services/api';
 import BookingModal from '../components/BookingModal';
@@ -7,6 +8,7 @@ import ReviewModal from '../components/ReviewModal';
 import ProviderProfileModal from '../components/ProviderProfileModal';
 
 export default function ClientDashboard({ user, onUserUpdate }) {
+  const navigate = useNavigate();
   const [providers, setProviders] = useState([]);
   const [bookings, setBookings] = useState([]);
 
@@ -229,7 +231,7 @@ export default function ClientDashboard({ user, onUserUpdate }) {
                 <div 
                   key={p.id} 
                   className="bg-surface-bright rounded-2xl p-6 border border-outline hover:border-primary/30 hover:shadow-lg transition-all group cursor-pointer flex flex-col h-full"
-                  onClick={() => { setSelectedProviderForProfile(p); setIsProfileModalOpen(true); }}
+                  onClick={() => navigate(`/provider/${p.id}`)}
                 >
                   <div className="flex items-start justify-between mb-4">
                     <div className="relative">
