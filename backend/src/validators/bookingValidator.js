@@ -13,7 +13,7 @@ const getBookingsSchema = z.object({
 });
 
 const updateBookingStatusSchema = z.object({
-  status: z.enum(['ACCEPTED', 'REJECTED', 'COMPLETED'])
+  status: z.enum(['ACCEPTED', 'REJECTED', 'COMPLETED', 'DISPUTED']),
 });
 
 const addReviewSchema = z.object({

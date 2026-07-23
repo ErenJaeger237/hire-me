@@ -51,6 +51,10 @@ const User = sequelize.define('User', {
     type: DataTypes.FLOAT,
     allowNull: true,
   },
+  is_banned: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
+  },
 }, {
   tableName: 'users',
   timestamps: true,
