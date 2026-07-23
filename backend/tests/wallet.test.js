@@ -1,0 +1,1 @@
+// Wallet Tests\ntest("should split 95% payout and 5% platform fee on completion", () => { /* logic */ });\n

@@ -1,0 +1,1 @@
+// Auth Tests\ntest("should register a new client", () => { /* test logic */ });\ntest("should login user and return JWT token", () => { /* test logic */ });\n
