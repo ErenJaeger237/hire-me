@@ -35,6 +35,11 @@ io.on('connection', (socket) => {
     console.log(`User ${socket.id} joined room: booking_${bookingId}`);
   });
 
+  socket.on('join_user', (userId) => {
+    socket.join(`user_${userId}`);
+    console.log(`User ${socket.id} joined room: user_${userId}`);
+  });
+
   socket.on('disconnect', () => {
     console.log('User disconnected:', socket.id);
   });

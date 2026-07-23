@@ -6,6 +6,19 @@ class BookingController {
     try {
       const validatedData = createBookingSchema.parse(req.body);
       const result = await bookingService.createBooking(req.user.id, validatedData);
+      
+      // Emit socket event to notify the provider
+      const io = req.app.get('io');
+      if (io && result.booking) {
+        // Fetch ProviderProfile to get user_id
+        const { ProviderProfile } = require('../models');
+        const profile = await ProviderProfile.findByPk(result.booking.provider_id);
+        if (profile && profile.user_id) {
+          const providerRoom = `user_${profile.user_id}`;
+          io.to(providerRoom).emit('new_booking', { bookingId: result.booking.id, status: result.booking.status });
+        }
+      }
+
       return res.status(201).json(result);
     } catch (error) {
       console.error('Create Booking Error:', error);
@@ -35,6 +48,22 @@ class BookingController {
       const bookingId = req.params.id;
       const validatedData = updateBookingStatusSchema.parse(req.body);
       const result = await bookingService.updateBookingStatus(bookingId, validatedData.status, req.user.id, req.user.role);
+      
+      // Emit socket event to notify both parties
+      const io = req.app.get('io');
+      if (io && result.booking) {
+        const clientRoom = `user_${result.booking.client_id}`;
+        let providerRoom = null;
+        if (result.booking.provider && result.booking.provider.user_id) {
+          providerRoom = `user_${result.booking.provider.user_id}`;
+        }
+        
+        io.to(clientRoom).emit('booking_updated', { bookingId: result.booking.id, status: result.booking.status });
+        if (providerRoom) {
+          io.to(providerRoom).emit('booking_updated', { bookingId: result.booking.id, status: result.booking.status });
+        }
+      }
+
       return res.status(200).json(result);
     } catch (error) {
       console.error('Update Booking Error:', error);
