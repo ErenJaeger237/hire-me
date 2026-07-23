@@ -122,6 +122,10 @@ export default function ClientDashboard({ user, onUserUpdate }) {
   };
 
   const handleUpdateStatus = async (bookingId, newStatus) => {
+    if (newStatus === 'CANCELLED') {
+      const confirmed = window.confirm('Are you sure you want to cancel this booking? Your escrow funds will be refunded.');
+      if (!confirmed) return;
+    }
     setUpdatingBookingId(bookingId);
     try {
       await bookingService.updateStatus(bookingId, newStatus);
@@ -132,10 +136,16 @@ export default function ClientDashboard({ user, onUserUpdate }) {
           onUserUpdate({ wallet_balance: profile.user.wallet_balance });
         }).catch(err => console.error(err));
       }
-      setFeedbackMsg(`Job successfully marked as ${newStatus}!`);
-      setTimeout(() => setFeedbackMsg(''), 3000);
+      setFeedbackMsg(
+        newStatus === 'CANCELLED'
+          ? 'Booking cancelled. Funds refunded to your wallet.'
+          : `Job successfully marked as ${newStatus}!`
+      );
+      setTimeout(() => setFeedbackMsg(''), 4000);
     } catch (err) {
-      alert(err.response?.data?.error || `Failed to update booking.`);
+      const msg = err.response?.data?.error || `Failed to update booking.`;
+      setFeedbackMsg(`Error: ${msg}`);
+      setTimeout(() => setFeedbackMsg(''), 5000);
     } finally {
       setUpdatingBookingId(null);
     }
