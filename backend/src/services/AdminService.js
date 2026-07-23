@@ -39,7 +39,7 @@ class AdminService {
 
   async getAllUsers() {
     return await User.findAll({
-      attributes: ['id', 'name', 'email', 'role', 'createdAt'],
+      attributes: ['id', 'name', 'email', 'role', 'createdAt', 'wallet_balance', 'is_banned'],
       order: [['createdAt', 'DESC']]
     });
   }
@@ -81,6 +81,46 @@ class AdminService {
         { model: ProviderProfile, as: 'provider', include: [{ model: User, as: 'user', attributes: ['name', 'email'] }] },
       ]
     });
+  }
+
+  async banUser(userId, isBanned) {
+    const user = await User.findByPk(userId);
+    if (!user) {
+      throw new Error('User not found');
+    }
+    // Protect other admins from being banned
+    if (user.role === 'ADMIN' && isBanned) {
+      throw new Error('Cannot ban another admin');
+    }
+    user.is_banned = isBanned;
+    await user.save();
+    return user;
+  }
+
+  async updateWallet(userId, amount, type) {
+    const user = await User.findByPk(userId);
+    if (!user) {
+      throw new Error('User not found');
+    }
+    
+    amount = parseFloat(amount);
+    if (isNaN(amount) || amount <= 0) {
+      throw new Error('Invalid amount');
+    }
+
+    if (type === 'credit') {
+      user.wallet_balance = parseFloat(user.wallet_balance) + amount;
+    } else if (type === 'debit') {
+      if (parseFloat(user.wallet_balance) < amount) {
+        throw new Error('Insufficient funds in user wallet to debit this amount');
+      }
+      user.wallet_balance = parseFloat(user.wallet_balance) - amount;
+    } else {
+      throw new Error('Invalid transaction type. Must be credit or debit');
+    }
+    
+    await user.save();
+    return user;
   }
 }
 

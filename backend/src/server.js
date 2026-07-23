@@ -280,6 +280,8 @@ app.get('/api/admin/users', authenticateToken, adminController.getUsers);
 app.get('/api/admin/providers', authenticateToken, adminController.getProviders);
 app.patch('/api/admin/providers/:id/verify', authenticateToken, adminController.verifyProvider);
 app.get('/api/admin/disputes', authenticateToken, adminController.getDisputes);
+app.patch('/api/admin/users/:id/ban', authenticateToken, adminController.banUser);
+app.patch('/api/admin/users/:id/wallet', authenticateToken, adminController.updateWallet);
 
 const walletController = require('./controllers/walletController');
 app.get('/api/wallet/balance', authenticateToken, walletController.getBalance);

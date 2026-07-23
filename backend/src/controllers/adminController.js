@@ -62,6 +62,34 @@ class AdminController {
       res.status(500).json({ error: err.message });
     }
   }
+
+  async banUser(req, res) {
+    try {
+      if (req.user.role !== 'ADMIN') {
+        return res.status(403).json({ error: 'Access denied' });
+      }
+      const { id } = req.params;
+      const { is_banned } = req.body;
+      const user = await AdminService.banUser(id, is_banned);
+      res.json({ message: `User ${is_banned ? 'banned' : 'unbanned'} successfully`, user });
+    } catch (err) {
+      res.status(400).json({ error: err.message });
+    }
+  }
+
+  async updateWallet(req, res) {
+    try {
+      if (req.user.role !== 'ADMIN') {
+        return res.status(403).json({ error: 'Access denied' });
+      }
+      const { id } = req.params;
+      const { amount, type } = req.body; // type: 'credit' or 'debit'
+      const user = await AdminService.updateWallet(id, amount, type);
+      res.json({ message: 'Wallet balance updated successfully', user });
+    } catch (err) {
+      res.status(400).json({ error: err.message });
+    }
+  }
 }
 
 module.exports = new AdminController();
