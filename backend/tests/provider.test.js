@@ -1,1 +1,1 @@
-// Provider Search Tests\n
+// Provider Search Tests\ntest("should return only verified providers", () => { /* logic */ });\n
