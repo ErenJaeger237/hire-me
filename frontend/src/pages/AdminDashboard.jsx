@@ -4,6 +4,7 @@ import axios from 'axios';
 import { API_BASE_URL } from '../services/api';
 
 export default function AdminDashboard({ user }) {
+  const [activeTab, setActiveTab] = useState('overview');
   const [analytics, setAnalytics] = useState(null);
   const [users, setUsers] = useState([]);
   const [providers, setProviders] = useState([]);
