@@ -4,10 +4,10 @@ import axios from 'axios';
 import { API_BASE_URL } from '../services/api';
 
 export default function AdminDashboard({ user }) {
-  const [activeTab, setActiveTab] = useState('overview');
   const [analytics, setAnalytics] = useState(null);
   const [users, setUsers] = useState([]);
   const [providers, setProviders] = useState([]);
+  const [disputes, setDisputes] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const getHeaders = () => {
@@ -18,14 +18,16 @@ export default function AdminDashboard({ user }) {
   const fetchDashboardData = async () => {
     setLoading(true);
     try {
-      const [analyticsRes, usersRes, providersRes] = await Promise.all([
+      const [analyticsRes, usersRes, providersRes, disputesRes] = await Promise.all([
         axios.get(`${API_BASE_URL}/admin/analytics`, getHeaders()),
         axios.get(`${API_BASE_URL}/admin/users`, getHeaders()),
-        axios.get(`${API_BASE_URL}/admin/providers`, getHeaders())
+        axios.get(`${API_BASE_URL}/admin/providers`, getHeaders()),
+        axios.get(`${API_BASE_URL}/admin/disputes`, getHeaders())
       ]);
       setAnalytics(analyticsRes.data);
       setUsers(usersRes.data.users);
       setProviders(providersRes.data.providers);
+      setDisputes(disputesRes.data.disputes);
     } catch (err) {
       console.error('Error fetching admin data:', err);
     } finally {
@@ -69,7 +71,7 @@ export default function AdminDashboard({ user }) {
           </div>
         </div>
         <div className="max-w-6xl mx-auto px-4 md:px-8 flex items-center gap-6 mt-4">
-          {['overview', 'financials', 'users', 'providers'].map(tab => (
+          {['overview', 'financials', 'users', 'providers', 'disputes'].map(tab => (
             <button 
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -138,64 +140,13 @@ export default function AdminDashboard({ user }) {
 
             <div className="bg-surface-bright p-6 rounded-2xl border border-outline shadow-sm flex flex-col relative overflow-hidden">
               <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-3xl -mr-10 -mt-10"></div>
-      </header>
-
-      <main className="max-w-6xl mx-auto px-4 md:px-8 py-8">
-        {activeTab === 'overview' && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[
-              { label: 'Total Users', value: analytics?.totalUsers || 0, icon: Users, color: 'text-blue-600', bg: 'bg-blue-100' },
-              { label: 'Total Clients', value: analytics?.totalClients || 0, icon: Briefcase, color: 'text-indigo-600', bg: 'bg-indigo-100' },
-              { label: 'Total Providers', value: analytics?.totalProviders || 0, icon: Shield, color: 'text-emerald-600', bg: 'bg-emerald-100' },
-              { label: 'Total Bookings', value: analytics?.totalBookings || 0, icon: CheckCircle, color: 'text-purple-600', bg: 'bg-purple-100' },
-            ].map((stat, i) => (
-              <div key={i} className="bg-surface-bright p-6 rounded-2xl border border-outline shadow-sm flex items-center gap-4 hover:shadow-md transition-shadow">
-                <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${stat.bg}`}>
-                  <stat.icon className={`w-6 h-6 ${stat.color}`} />
-                </div>
-                <div>
-                  <div className="text-2xl font-bold text-on-surface">{stat.value}</div>
-                  <div className="text-sm font-medium text-on-surface-variant">{stat.label}</div>
-                </div>
+              <div className="flex items-center gap-3 text-on-surface-variant mb-4 relative z-10">
+                <BarChart3 className="w-5 h-5 text-emerald-500" />
+                <span className="font-medium">Platform Revenue (5%)</span>
               </div>
-            ))}
-          </div>
-        )}
-
-        {activeTab === 'financials' && (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-             <div className="bg-surface-bright p-6 rounded-2xl border border-outline shadow-sm hover:shadow-md transition-shadow">
-               <div className="flex items-center gap-3 mb-4">
-                 <div className="w-10 h-10 rounded-lg bg-emerald-100 flex items-center justify-center">
-                   <BarChart3 className="w-5 h-5 text-emerald-600" />
-                 </div>
-                 <h3 className="font-semibold text-on-surface">Platform Revenue</h3>
-               </div>
-               <div className="text-3xl font-bold text-on-surface">{analytics?.platformRevenue?.toLocaleString() || 0} FCFA</div>
-               <p className="text-sm text-on-surface-variant mt-2 font-medium">Total 5% commissions collected</p>
-             </div>
-             
-             <div className="bg-surface-bright p-6 rounded-2xl border border-outline shadow-sm hover:shadow-md transition-shadow">
-               <div className="flex items-center gap-3 mb-4">
-                 <div className="w-10 h-10 rounded-lg bg-amber-100 flex items-center justify-center">
-                   <Briefcase className="w-5 h-5 text-amber-600" />
-                 </div>
-                 <h3 className="font-semibold text-on-surface">Current Escrow</h3>
-               </div>
-               <div className="text-3xl font-bold text-on-surface">{analytics?.currentEscrow?.toLocaleString() || 0} FCFA</div>
-               <p className="text-sm text-on-surface-variant mt-2 font-medium">Funds held for active jobs</p>
-             </div>
-             
-             <div className="bg-surface-bright p-6 rounded-2xl border border-outline shadow-sm hover:shadow-md transition-shadow">
-               <div className="flex items-center gap-3 mb-4">
-                 <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center">
-                   <CheckCircle className="w-5 h-5 text-blue-600" />
-                 </div>
-                 <h3 className="font-semibold text-on-surface">Total Processed</h3>
-               </div>
-               <div className="text-3xl font-bold text-on-surface">{analytics?.totalProcessedVolume?.toLocaleString() || 0} FCFA</div>
-               <p className="text-sm text-on-surface-variant mt-2 font-medium">All-time payout volume</p>
-             </div>
+              <p className="text-4xl font-bold text-emerald-600 mb-2 relative z-10">{analytics.platformRevenue} <span className="text-lg">FCFA</span></p>
+              <p className="text-sm text-emerald-700/80 font-medium relative z-10">Commission generated</p>
+            </div>
           </div>
         )}
 
@@ -331,9 +282,8 @@ export default function AdminDashboard({ user }) {
             </div>
           </div>
         )}
-
         {activeTab === 'disputes' && (
-          <div className="bg-surface-bright rounded-2xl border border-outline overflow-hidden">
+          <div className="bg-surface-bright rounded-2xl border border-outline overflow-hidden mt-6">
             {!disputes || disputes.length === 0 ? (
               <div className="p-8 text-center text-on-surface-variant">
                 <CheckCircle className="w-12 h-12 mx-auto mb-3 text-primary opacity-50" />
