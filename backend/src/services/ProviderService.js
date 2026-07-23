@@ -144,6 +144,55 @@ class ProviderService {
       reviews
     };
   }
+
+  async getProviderEarnings(userId) {
+    const { Transaction, Booking, ProviderProfile } = require('../models');
+    const { Op } = require('sequelize');
+
+    // Get provider profile
+    const profile = await ProviderProfile.findOne({ where: { user_id: userId } });
+    if (!profile) {
+      throw Object.assign(new Error('Provider profile not found.'), { statusCode: 404 });
+    }
+
+    // Total earnings (completed jobs)
+    const completedTransactions = await Transaction.findAll({
+      where: {
+        user_id: userId,
+        type: 'PAYMENT_RECEIVED',
+        status: 'COMPLETED'
+      }
+    });
+    const totalEarnings = completedTransactions.reduce((sum, t) => sum + Number(t.amount), 0);
+
+    // Pending escrow (jobs that are ACCEPTED but not yet COMPLETED)
+    const pendingBookings = await Booking.findAll({
+      where: {
+        provider_id: profile.id,
+        status: 'ACCEPTED'
+      }
+    });
+    const pendingEscrow = pendingBookings.reduce((sum, b) => {
+      const payout = (Number(b.estimated_hours || 1) * Number(profile.hourly_rate)) * 0.95;
+      return sum + payout;
+    }, 0);
+
+    // Recent transactions for the provider
+    const recentTransactions = await Transaction.findAll({
+      where: {
+        user_id: userId,
+      },
+      order: [['createdAt', 'DESC']],
+      limit: 10
+    });
+
+    return {
+      totalEarnings,
+      pendingEscrow,
+      completedJobs: completedTransactions.length,
+      recentTransactions
+    };
+  }
 }
 
 module.exports = new ProviderService();

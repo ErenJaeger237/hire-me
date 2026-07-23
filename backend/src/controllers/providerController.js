@@ -34,6 +34,20 @@ class ProviderController {
       return res.status(500).json({ error: 'Failed to fetch provider details.' });
     }
   }
+
+  async getEarnings(req, res) {
+    try {
+      if (req.user.role !== 'PROVIDER') {
+        return res.status(403).json({ error: 'Only providers can view earnings.' });
+      }
+      const result = await providerService.getProviderEarnings(req.user.id);
+      return res.status(200).json(result);
+    } catch (error) {
+      console.error('Fetch Earnings Error:', error);
+      if (error.statusCode) return res.status(error.statusCode).json({ error: error.message });
+      return res.status(500).json({ error: 'Failed to fetch earnings dashboard.' });
+    }
+  }
 }
 
 module.exports = new ProviderController();
