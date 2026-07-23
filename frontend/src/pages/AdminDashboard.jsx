@@ -69,7 +69,7 @@ export default function AdminDashboard({ user }) {
           </div>
         </div>
         <div className="max-w-6xl mx-auto px-4 md:px-8 flex items-center gap-6 mt-4">
-          {['overview', 'users', 'providers'].map(tab => (
+          {['overview', 'financials', 'users', 'providers'].map(tab => (
             <button 
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -112,6 +112,38 @@ export default function AdminDashboard({ user }) {
               </div>
               <p className="text-4xl font-bold text-on-surface mb-2">{analytics.completedBookings}</p>
               <p className="text-sm text-emerald-600 font-medium bg-emerald-100 w-fit px-2 py-0.5 rounded">Success Rate {(analytics.completedBookings / Math.max(analytics.totalBookings, 1) * 100).toFixed(0)}%</p>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'financials' && analytics && (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="bg-surface-bright p-6 rounded-2xl border border-outline shadow-sm flex flex-col">
+              <div className="flex items-center gap-3 text-on-surface-variant mb-4">
+                <AlertCircle className="w-5 h-5 text-amber-500" />
+                <span className="font-medium">Current Escrow Holdings</span>
+              </div>
+              <p className="text-4xl font-bold text-amber-600 mb-2">{analytics.currentEscrow} <span className="text-lg">FCFA</span></p>
+              <p className="text-sm text-on-surface-variant">Locked in active jobs</p>
+            </div>
+
+            <div className="bg-surface-bright p-6 rounded-2xl border border-outline shadow-sm flex flex-col">
+              <div className="flex items-center gap-3 text-on-surface-variant mb-4">
+                <BarChart3 className="w-5 h-5 text-blue-500" />
+                <span className="font-medium">Total Processed Volume</span>
+              </div>
+              <p className="text-4xl font-bold text-blue-600 mb-2">{analytics.totalProcessedVolume} <span className="text-lg">FCFA</span></p>
+              <p className="text-sm text-on-surface-variant">Money paid to providers</p>
+            </div>
+
+            <div className="bg-surface-bright p-6 rounded-2xl border border-outline shadow-sm flex flex-col relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-3xl -mr-10 -mt-10"></div>
+              <div className="flex items-center gap-3 text-on-surface-variant mb-4 relative z-10">
+                <BarChart3 className="w-5 h-5 text-emerald-500" />
+                <span className="font-medium">Platform Revenue (5%)</span>
+              </div>
+              <p className="text-4xl font-bold text-emerald-600 mb-2 relative z-10">{analytics.platformRevenue} <span className="text-lg">FCFA</span></p>
+              <p className="text-sm text-emerald-700/80 font-medium relative z-10">Commission generated</p>
             </div>
           </div>
         )}
