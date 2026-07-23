@@ -404,7 +404,7 @@ export default function ClientDashboard({ user, onUserUpdate }) {
                                   disabled={updatingBookingId === b.id}
                                   className={`text-xs font-bold bg-rose-500/10 text-rose-600 border border-rose-500/20 hover:bg-rose-500/20 transition-colors px-3 py-1.5 rounded-lg flex items-center justify-center gap-1.5 ${updatingBookingId === b.id ? 'opacity-70' : ''}`}
                                 >
-                                  {updatingBookingId === b.id ? '...' : <><AlertCircle className="w-3.5 h-3.5" /> Cancel Booking</>}
+                                  {updatingBookingId === b.id ? '...' : <span><AlertCircle className="w-3.5 h-3.5 inline mr-1" /> Cancel Booking</span>}
                                 </button>
                               )}
                               {b.status === 'ACCEPTED' && (
@@ -413,7 +413,7 @@ export default function ClientDashboard({ user, onUserUpdate }) {
                                   disabled={updatingBookingId === b.id}
                                   className={`text-xs font-bold bg-emerald-600 text-white hover:bg-emerald-700 transition-colors px-3 py-1.5 rounded-lg flex items-center justify-center gap-1.5 ${updatingBookingId === b.id ? 'opacity-70' : ''}`}
                                 >
-                                  {updatingBookingId === b.id ? '...' : <><CheckCircle className="w-3.5 h-3.5" /> Mark Completed</>}
+                                  {updatingBookingId === b.id ? '...' : <span><CheckCircle className="w-3.5 h-3.5 inline mr-1" /> Mark Completed</span>}
                                 </button>
                               )}
                               {b.status === 'COMPLETED' && b.rating === null && (
