@@ -9,6 +9,7 @@ const bookingController = require('./controllers/bookingController');
 const { authenticateToken } = require('./middleware/authMiddleware');
 const userController = require('./controllers/userController');
 const messageController = require('./controllers/messageController');
+const savedController = require('./controllers/savedController');
 const setupSwagger = require('./config/swagger');
 const bcrypt = require('bcryptjs');
 
@@ -180,6 +181,11 @@ app.post('/api/auth/login', authController.login);
 app.get('/api/providers', providerController.getProviders);
 app.get('/api/providers/me/earnings', authenticateToken, providerController.getEarnings);
 app.get('/api/providers/:id', providerController.getProviderById);
+
+// Saved / Favourite Providers (F-11)
+app.get('/api/saved', authenticateToken, savedController.getSaved);
+app.post('/api/saved/:id', authenticateToken, savedController.saveProvider);
+app.delete('/api/saved/:id', authenticateToken, savedController.unsaveProvider);
 /**
  * @openapi
  * /api/bookings:
