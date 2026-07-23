@@ -114,7 +114,8 @@ class BookingService {
 
       const VALID_TRANSITIONS = {
         PENDING: ['ACCEPTED', 'REJECTED'],
-        ACCEPTED: ['COMPLETED'],
+        ACCEPTED: ['COMPLETED', 'DISPUTED'],
+        DISPUTED: ['COMPLETED', 'REJECTED'], // Admin resolves dispute
       };
 
       if (!VALID_TRANSITIONS[booking.status]?.includes(status)) {
@@ -126,14 +127,25 @@ class BookingService {
         if (!profile || booking.provider_id !== profile.id) {
           throw Object.assign(new Error('Forbidden: You do not own this booking.'), { statusCode: 403 });
         }
-        if (status === 'COMPLETED') throw Object.assign(new Error('Only clients can mark a job as completed.'), { statusCode: 403 });
+        if (!['ACCEPTED', 'REJECTED', 'DISPUTED'].includes(status)) {
+           throw Object.assign(new Error('Providers cannot force completion or arbitrary states.'), { statusCode: 403 });
+        }
       }
       
       if (requestingUserRole === 'CLIENT') {
         if (booking.client_id !== requestingUserId) {
           throw Object.assign(new Error('Forbidden.'), { statusCode: 403 });
         }
-        if (status !== 'COMPLETED') throw Object.assign(new Error('Clients can only mark jobs as Completed.'), { statusCode: 403 });
+        if (!['COMPLETED', 'DISPUTED'].includes(status)) {
+          throw Object.assign(new Error('Clients can only mark jobs as Completed or Disputed.'), { statusCode: 403 });
+        }
+      }
+
+      if (requestingUserRole === 'ADMIN') {
+        // Admins can only resolve disputes
+        if (booking.status !== 'DISPUTED') {
+          throw Object.assign(new Error('Admins can only transition DISPUTED bookings.'), { statusCode: 403 });
+        }
       }
 
       const bookingFee = Number(booking.provider.hourly_rate) * Number(booking.estimated_hours || 1);

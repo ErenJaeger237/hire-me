@@ -50,6 +50,18 @@ class AdminController {
       res.status(400).json({ error: err.message });
     }
   }
+
+  async getDisputes(req, res) {
+    try {
+      if (req.user.role !== 'ADMIN') {
+        return res.status(403).json({ error: 'Access denied' });
+      }
+      const disputes = await AdminService.getDisputes();
+      res.json({ disputes });
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  }
 }
 
 module.exports = new AdminController();

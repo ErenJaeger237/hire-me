@@ -65,6 +65,23 @@ class AdminService {
     await profile.save();
     return profile;
   }
+
+  async getProviders() {
+    return await ProviderProfile.findAll({
+      include: [
+        { model: User, as: 'user', attributes: ['name', 'email'] }
+      ]
+    });
+  }
+
+  async getDisputes() {
+    return await Booking.findAll({
+      where: { status: 'DISPUTED' },
+      include: [
+        { model: ProviderProfile, as: 'provider', include: [{ model: User, as: 'user', attributes: ['name', 'email'] }] },
+      ]
+    });
+  }
 }
 
 module.exports = new AdminService();

@@ -16,7 +16,7 @@ const Booking = sequelize.define('Booking', {
     allowNull: false,
   },
   status: {
-    type: DataTypes.ENUM('PENDING', 'ACCEPTED', 'REJECTED', 'COMPLETED'),
+    type: DataTypes.ENUM('PENDING', 'ACCEPTED', 'REJECTED', 'COMPLETED', 'DISPUTED'),
     defaultValue: 'PENDING',
   },
   job_date: {

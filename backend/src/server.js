@@ -95,7 +95,9 @@ const apiLimiter = rateLimit({
   max: 100, // limit each IP to 100 requests per windowMs
   message: { error: 'Too many requests, please try again later.' }
 });
-app.use('/api/', apiLimiter);
+if (process.env.NODE_ENV === 'production') {
+  app.use('/api/', apiLimiter);
+}
 
 app.use('/uploads', express.static(path.join(__dirname, '../public/uploads')));
 
@@ -277,6 +279,7 @@ app.get('/api/admin/analytics', authenticateToken, adminController.getAnalytics)
 app.get('/api/admin/users', authenticateToken, adminController.getUsers);
 app.get('/api/admin/providers', authenticateToken, adminController.getProviders);
 app.patch('/api/admin/providers/:id/verify', authenticateToken, adminController.verifyProvider);
+app.get('/api/admin/disputes', authenticateToken, adminController.getDisputes);
 
 const walletController = require('./controllers/walletController');
 app.get('/api/wallet/balance', authenticateToken, walletController.getBalance);
