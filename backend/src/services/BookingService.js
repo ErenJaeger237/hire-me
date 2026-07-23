@@ -113,8 +113,8 @@ class BookingService {
       }
 
       const VALID_TRANSITIONS = {
-        PENDING: ['ACCEPTED', 'REJECTED'],
-        ACCEPTED: ['COMPLETED', 'DISPUTED'],
+        PENDING: ['ACCEPTED', 'REJECTED', 'CANCELLED'],
+        ACCEPTED: ['COMPLETED', 'DISPUTED', 'CANCELLED'],
         DISPUTED: ['COMPLETED', 'REJECTED'], // Admin resolves dispute
       };
 
@@ -136,8 +136,8 @@ class BookingService {
         if (booking.client_id !== requestingUserId) {
           throw Object.assign(new Error('Forbidden.'), { statusCode: 403 });
         }
-        if (!['COMPLETED', 'DISPUTED'].includes(status)) {
-          throw Object.assign(new Error('Clients can only mark jobs as Completed or Disputed.'), { statusCode: 403 });
+        if (!['COMPLETED', 'DISPUTED', 'CANCELLED'].includes(status)) {
+          throw Object.assign(new Error('Clients can only mark jobs as Completed, Disputed, or Cancelled.'), { statusCode: 403 });
         }
       }
 
@@ -187,6 +187,24 @@ class BookingService {
           type: 'PLATFORM_FEE',
           status: 'COMPLETED',
           reference: `FEE_${booking.id}`
+        }, { transaction: t });
+      }
+
+      if (status === 'CANCELLED') {
+        const hourlyRate = Number(booking.provider.hourly_rate);
+        const estimatedHours = Number(booking.estimated_hours || 1);
+        const bookingFee = hourlyRate * estimatedHours;
+
+        const clientUser = await User.findByPk(booking.client_id, { transaction: t });
+        clientUser.wallet_balance = Number(clientUser.wallet_balance || 0) + bookingFee;
+        await clientUser.save({ transaction: t });
+
+        await Transaction.create({
+          user_id: booking.client_id,
+          amount: bookingFee,
+          type: 'ESCROW_REFUND',
+          status: 'COMPLETED',
+          reference: `BOOKING_CANCEL_${booking.id}`
         }, { transaction: t });
       }
 
