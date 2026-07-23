@@ -65,7 +65,12 @@ class MessageService {
       content,
     });
 
-    return message;
+    // Return with sender details so frontend can identify the author
+    const fullMessage = await Message.findByPk(message.id, {
+      include: [{ model: User, as: 'sender', attributes: ['id', 'name', 'profile_picture_url'] }]
+    });
+
+    return fullMessage;
   }
 }
 
