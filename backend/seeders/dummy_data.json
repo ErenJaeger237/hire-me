@@ -1,0 +1,72 @@
+{
+  "users": [
+    {
+      "name": "Admin Master",
+      "email": "admin@hireme.com",
+      "password": "password123",
+      "role": "ADMIN",
+      "wallet_balance": 0
+    },
+    {
+      "name": "Jane Doe",
+      "email": "jane@client.com",
+      "password": "password123",
+      "role": "CLIENT",
+      "wallet_balance": 50000
+    },
+    {
+      "name": "John Smith",
+      "email": "john@client.com",
+      "password": "password123",
+      "role": "CLIENT",
+      "wallet_balance": 12000
+    },
+    {
+      "name": "Mike The Plumber",
+      "email": "mike@provider.com",
+      "password": "password123",
+      "role": "PROVIDER",
+      "wallet_balance": 25000
+    },
+    {
+      "name": "Sarah The Tutor",
+      "email": "sarah@provider.com",
+      "password": "password123",
+      "role": "PROVIDER",
+      "wallet_balance": 8000
+    },
+    {
+      "name": "Electrician Bob",
+      "email": "bob@provider.com",
+      "password": "password123",
+      "role": "PROVIDER",
+      "wallet_balance": 0
+    }
+  ],
+  "provider_profiles": [
+    {
+      "user_email": "mike@provider.com",
+      "trade": "Plumber",
+      "hourly_rate": 5000,
+      "bio": "Experienced plumber with 10 years of fixing pipes.",
+      "is_verified": true,
+      "rating": 4.8
+    },
+    {
+      "user_email": "sarah@provider.com",
+      "trade": "Tutor",
+      "hourly_rate": 3000,
+      "bio": "Math and Science tutor for high school students.",
+      "is_verified": true,
+      "rating": 5.0
+    },
+    {
+      "user_email": "bob@provider.com",
+      "trade": "Electrician",
+      "hourly_rate": 7000,
+      "bio": "Certified electrician available for quick repairs.",
+      "is_verified": false,
+      "rating": 0
+    }
+  ]
+}
