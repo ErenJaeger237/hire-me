@@ -1,0 +1,1 @@
+// Booking Tests\ntest("should deduct funds for escrow on booking creation", () => { /* logic */ });\ntest("should refund client if booking is cancelled", () => { /* logic */ });\n
