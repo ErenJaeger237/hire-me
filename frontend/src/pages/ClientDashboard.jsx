@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Filter, Star, Calendar, DollarSign, Clock, CheckCircle, AlertCircle, RefreshCw, ChevronDown, CheckCircle2, UserCheck } from 'lucide-react';
-import { providerService, bookingService, userService } from '../services/api';
+import { Search, Filter, Star, Calendar, DollarSign, Clock, CheckCircle, AlertCircle, RefreshCw, ChevronDown, CheckCircle2, UserCheck, Heart } from 'lucide-react';
+import { providerService, bookingService, userService, savedService } from '../services/api';
 import socket from '../services/socket';
 import BookingModal from '../components/BookingModal';
 import ChatModal from '../components/ChatModal';
@@ -85,6 +85,7 @@ export default function ClientDashboard({ user, onUserUpdate }) {
   const [loading, setLoading] = useState(true);
   const [feedbackMsg, setFeedbackMsg] = useState('');
   const [updatingBookingId, setUpdatingBookingId] = useState(null);
+  const [savedIds, setSavedIds] = useState(new Set());
 
   const fetchProviders = async () => {
     try {
@@ -144,6 +145,11 @@ export default function ClientDashboard({ user, onUserUpdate }) {
     setLoading(true);
     fetchBookings().finally(() => setLoading(false));
 
+    // Load saved provider IDs
+    savedService.getSaved().then(data => {
+      setSavedIds(new Set((data.saved || []).map(p => p.id)));
+    }).catch(err => console.error('Failed to load saved:', err));
+
     const handleBookingUpdate = (data) => {
       console.log('Booking update received:', data);
       fetchBookings();
@@ -161,6 +167,20 @@ export default function ClientDashboard({ user, onUserUpdate }) {
       socket.off('booking_updated', handleBookingUpdate);
     };
   }, []); // Only fetch bookings once on mount
+
+  const handleToggleSave = async (providerId) => {
+    try {
+      if (savedIds.has(providerId)) {
+        await savedService.unsave(providerId);
+        setSavedIds(prev => { const next = new Set(prev); next.delete(providerId); return next; });
+      } else {
+        await savedService.save(providerId);
+        setSavedIds(prev => new Set([...prev, providerId]));
+      }
+    } catch (err) {
+      console.error('Toggle save failed:', err);
+    }
+  };
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -350,12 +370,23 @@ export default function ClientDashboard({ user, onUserUpdate }) {
                     {p.bio || 'Experienced local professional available for direct hire. Dedicated to high-quality results.'}
                   </p>
                   
-                  <div className="mt-auto">
+                  <div className="mt-auto flex gap-2">
                     <button 
                       onClick={(e) => { e.stopPropagation(); handleOpenBooking(p); }}
-                      className="w-full py-2.5 rounded-lg border-2 border-primary text-primary font-medium hover:bg-primary hover:text-white transition-all active:scale-95"
+                      className="flex-1 py-2.5 rounded-lg border-2 border-primary text-primary font-medium hover:bg-primary hover:text-white transition-all active:scale-95"
                     >
                       Book Now
+                    </button>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); handleToggleSave(p.id); }}
+                      title={savedIds.has(p.id) ? 'Remove from favourites' : 'Save to favourites'}
+                      className={`p-2.5 rounded-lg border-2 transition-all active:scale-95 ${
+                        savedIds.has(p.id)
+                          ? 'border-red-400 bg-red-50 text-red-500'
+                          : 'border-outline text-on-surface-variant hover:border-red-400 hover:text-red-400'
+                      }`}
+                    >
+                      <Heart className={`w-5 h-5 ${savedIds.has(p.id) ? 'fill-red-500' : ''}`} />
                     </button>
                   </div>
                 </div>

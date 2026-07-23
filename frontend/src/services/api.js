@@ -80,4 +80,19 @@ export const userService = {
   }
 };
 
+export const savedService = {
+  getSaved: async () => {
+    const res = await api.get('/saved');
+    return res.data;
+  },
+  save: async (providerId) => {
+    const res = await api.post(`/saved/${providerId}`);
+    return res.data;
+  },
+  unsave: async (providerId) => {
+    const res = await api.delete(`/saved/${providerId}`);
+    return res.data;
+  },
+};
+
 export default api;
