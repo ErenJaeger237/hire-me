@@ -8,6 +8,8 @@ import AdminDashboard from './pages/AdminDashboard';
 import ProviderPublicProfile from './pages/ProviderPublicProfile';
 import ErrorBoundary from './components/ErrorBoundary';
 
+import socket from './services/socket';
+
 export default function App() {
   const [user, setUser] = useState(null);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -22,6 +24,19 @@ export default function App() {
       }
     }
   }, []);
+
+  useEffect(() => {
+    if (user) {
+      socket.connect();
+      socket.emit('join_user', user.id);
+    } else {
+      socket.disconnect();
+    }
+
+    return () => {
+      socket.disconnect();
+    };
+  }, [user]);
 
   const handleLogout = () => {
     localStorage.removeItem('hire_me_token');
