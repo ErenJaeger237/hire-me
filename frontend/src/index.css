@@ -22,6 +22,24 @@
     
     --color-error: #EF4444;
   }
+
+  .dark {
+    --color-primary: #3b82f6; /* Lighter blue for dark mode visibility */
+    --color-on-primary: #ffffff;
+    
+    --color-surface: #0f172a;
+    --color-on-surface: #f8fafc;
+    --color-surface-bright: #1e293b;
+    --color-surface-container-low: #0f172a;
+    --color-surface-container: #334155;
+    --color-surface-container-high: #475569;
+    --color-surface-container-highest: #64748b;
+    
+    --color-outline: #334155;
+    --color-outline-variant: #475569;
+    
+    --color-error: #f87171;
+  }
 }
 
 @layer base {
