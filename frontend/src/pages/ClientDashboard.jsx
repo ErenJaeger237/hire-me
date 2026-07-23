@@ -68,6 +68,7 @@ export default function ClientDashboard({ user, onUserUpdate }) {
   const [category, setCategory] = useState('');
   const [maxPrice, setMaxPrice] = useState(50000);
   const [sortBy, setSortBy] = useState('distance');
+  const [verifiedOnly, setVerifiedOnly] = useState(false);
 
   // Modal State
   const [selectedProvider, setSelectedProvider] = useState(null);
@@ -88,7 +89,7 @@ export default function ClientDashboard({ user, onUserUpdate }) {
     try {
       const lat = user?.location_lat;
       const lng = user?.location_lng;
-      const data = await providerService.getProviders({ category, maxPrice, lat, lng });
+      const data = await providerService.getProviders({ category, maxPrice, verifiedOnly, lat, lng });
       
       let fetchedProviders = data.providers || data;
       
@@ -148,7 +149,7 @@ export default function ClientDashboard({ user, onUserUpdate }) {
       fetchProviders();
     }, 300);
     return () => clearTimeout(timer);
-  }, [category, maxPrice, sortBy]); // Fetch providers initially and whenever filters change
+  }, [category, maxPrice, sortBy, verifiedOnly, user?.location_lat, user?.location_lng]); // Fetch providers initially and whenever filters change
 
   const handleOpenBooking = (provider) => {
     setSelectedProvider(provider);
@@ -240,18 +241,29 @@ export default function ClientDashboard({ user, onUserUpdate }) {
           <div className="flex justify-between items-center mb-8">
             <h2 className="text-2xl font-bold text-on-surface">Top Recommended Professionals</h2>
             <div className="flex items-center gap-2 text-sm font-medium text-on-surface-variant">
-              Sort by: 
-              <select 
+              Sort
+              <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
-                className="bg-transparent border-none text-primary cursor-pointer focus:ring-0 font-bold"
+                className="bg-surface-bright text-on-surface text-sm border-none outline-none font-medium cursor-pointer"
               >
-                <option value="distance">Distance</option>
-                <option value="price_asc">Price: Low to High</option>
-                <option value="price_desc">Price: High to Low</option>
-                <option value="rating">Rating: Highest</option>
+                <option value="distance">Nearest</option>
+                <option value="rating">Top Rated</option>
+                <option value="price_asc">Lowest Price</option>
+                <option value="price_desc">Highest Price</option>
               </select>
             </div>
+
+            <button
+              onClick={() => setVerifiedOnly(!verifiedOnly)}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-bold border transition-colors ${
+                verifiedOnly 
+                  ? 'bg-emerald-50 text-emerald-700 border-emerald-200' 
+                  : 'bg-surface border-outline text-on-surface-variant hover:border-emerald-200 hover:text-emerald-600'
+              }`}
+            >
+              <CheckCircle2 className="w-4 h-4" /> Verified
+            </button>
           </div>
 
           {loading ? (
@@ -296,9 +308,11 @@ export default function ClientDashboard({ user, onUserUpdate }) {
                           </div>
                         )}
                       </div>
-                      <span className="absolute bottom-0 right-0 bg-white rounded-full p-0.5 border border-outline" title="Verified">
-                        <CheckCircle2 className="w-4 h-4 text-emerald-500 fill-emerald-100" />
-                      </span>
+                      {p.is_verified && (
+                        <span className="absolute bottom-0 right-0 bg-white rounded-full p-0.5 border border-outline" title="Verified">
+                          <CheckCircle2 className="w-4 h-4 text-emerald-500 fill-emerald-100" />
+                        </span>
+                      )}
                     </div>
                     <div className="flex flex-col items-end">
                       <span className="text-primary bg-primary/10 px-3 py-1 rounded-full text-xs font-medium border border-primary/20">
