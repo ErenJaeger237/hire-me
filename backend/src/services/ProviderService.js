@@ -1,8 +1,8 @@
 const { Op } = require('sequelize');
-const { User, ProviderProfile } = require('../models');
+const { User, ProviderProfile, Booking } = require('../models');
 
 class ProviderService {
-  async getProviders({ category, maxPrice, lat, lng, page = 1, limit = 20 }) {
+  async getProviders({ category, maxPrice, verifiedOnly, lat, lng, page = 1, limit = 20 }) {
     const whereClause = {};
 
     if (category && category.trim() !== '') {
@@ -15,6 +15,10 @@ class ProviderService {
 
     if (maxPrice && !isNaN(parseFloat(maxPrice))) {
       whereClause.hourly_rate = { [Op.lte]: parseFloat(maxPrice) };
+    }
+
+    if (verifiedOnly === 'true' || verifiedOnly === true) {
+      whereClause.is_verified = true;
     }
 
     const offset = (parseInt(page) - 1) * parseInt(limit);
@@ -57,6 +61,7 @@ class ProviderService {
         hourlyRate: parseFloat(p.hourly_rate),
         bio: p.bio,
         rating: parseFloat(p.rating || 5.0),
+        is_verified: p.is_verified,
         distance,
       };
     });
@@ -77,6 +82,66 @@ class ProviderService {
         limit: parseInt(limit),
         totalPages: Math.ceil(count / parseInt(limit))
       }
+    };
+  }
+  async getProviderById(providerId) {
+    const provider = await ProviderProfile.findByPk(providerId, {
+      include: [
+        {
+          model: User,
+          as: 'user',
+          attributes: ['id', 'name', 'email', 'createdAt', 'location_text', 'profile_picture_url'],
+        }
+      ]
+    });
+
+    if (!provider) {
+      const error = new Error('Provider not found');
+      error.statusCode = 404;
+      throw error;
+    }
+
+    // Fetch reviews from bookings
+    const bookings = await Booking.findAll({
+      where: {
+        provider_id: providerId,
+        status: 'COMPLETED',
+        rating: { [Op.not]: null }
+      },
+      include: [
+        {
+          model: User,
+          as: 'client',
+          attributes: ['id', 'name', 'profile_picture_url']
+        }
+      ],
+      order: [['updatedAt', 'DESC']],
+      limit: 10
+    });
+
+    const reviews = bookings.map(b => ({
+      id: b.id,
+      clientName: b.client ? b.client.name : 'Client',
+      clientAvatar: b.client ? b.client.profile_picture_url : null,
+      rating: b.rating,
+      comment: b.review_comment,
+      date: b.updatedAt
+    }));
+
+    return {
+      id: provider.id,
+      userId: provider.user_id,
+      name: provider.user ? provider.user.name : 'Unknown',
+      email: provider.user ? provider.user.email : '',
+      profilePicture: provider.user ? provider.user.profile_picture_url : null,
+      locationText: provider.user ? provider.user.location_text : null,
+      trade: provider.trade,
+      hourlyRate: parseFloat(provider.hourly_rate),
+      bio: provider.bio,
+      rating: parseFloat(provider.rating || 5.0),
+      isVerified: provider.is_verified,
+      joinedAt: provider.user ? provider.user.createdAt : null,
+      reviews
     };
   }
 }

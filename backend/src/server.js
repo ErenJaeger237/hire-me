@@ -173,7 +173,7 @@ app.post('/api/auth/login', authController.login);
  *         description: Array of provider profiles
  */
 app.get('/api/providers', providerController.getProviders);
-
+app.get('/api/providers/:id', providerController.getProviderById);
 /**
  * @openapi
  * /api/bookings:
