@@ -7,6 +7,58 @@ import ChatModal from '../components/ChatModal';
 import ReviewModal from '../components/ReviewModal';
 import ProviderProfileModal from '../components/ProviderProfileModal';
 
+const BookingTimeline = ({ status }) => {
+  const steps = [
+    { id: 'PENDING', label: 'Submitted' },
+    { id: 'ACCEPTED', label: 'Confirmed' },
+    { id: 'COMPLETED', label: 'Done & Paid' }
+  ];
+  
+  if (status === 'REJECTED') {
+    return (
+      <div className="flex items-center gap-1 mb-3">
+         <div className="flex flex-col items-center">
+            <div className="w-4 h-4 rounded-full bg-emerald-500"></div>
+            <span className="text-[10px] font-bold mt-1 text-emerald-600">Submitted</span>
+         </div>
+         <div className="h-0.5 w-8 bg-rose-500 -mt-4"></div>
+         <div className="flex flex-col items-center">
+            <div className="w-4 h-4 rounded-full bg-rose-500 border-2 border-rose-500"></div>
+            <span className="text-[10px] font-bold mt-1 text-rose-600">Rejected & Refunded</span>
+         </div>
+      </div>
+    );
+  }
+
+  const currentIdx = steps.findIndex(s => s.id === status);
+  
+  return (
+    <div className="flex items-center gap-1 mb-3">
+      {steps.map((step, idx) => {
+        const isPast = currentIdx >= idx;
+        
+        return (
+          <React.Fragment key={step.id}>
+            <div className="flex flex-col items-center">
+              <div className={`w-4 h-4 rounded-full border-2 ${
+                isPast ? 'bg-primary border-primary' : 'bg-surface border-outline'
+              }`}></div>
+              <span className={`text-[10px] font-bold mt-1 whitespace-nowrap ${
+                isPast ? 'text-primary' : 'text-on-surface-variant'
+              }`}>{step.label}</span>
+            </div>
+            {idx < steps.length - 1 && (
+              <div className={`h-0.5 w-8 -mt-4 ${
+                currentIdx > idx ? 'bg-primary' : 'bg-outline'
+              }`}></div>
+            )}
+          </React.Fragment>
+        );
+      })}
+    </div>
+  );
+};
+
 export default function ClientDashboard({ user, onUserUpdate }) {
   const navigate = useNavigate();
   const [providers, setProviders] = useState([]);
@@ -325,14 +377,7 @@ export default function ClientDashboard({ user, onUserUpdate }) {
                           </td>
                           <td className="px-6 py-4">
                             <div className="flex flex-col gap-2">
-                              <span className={`text-xs font-bold px-3 py-1 rounded-full w-fit ${
-                                b.status === 'ACCEPTED' ? 'bg-blue-100 text-blue-700' :
-                                b.status === 'COMPLETED' ? 'bg-emerald-100 text-emerald-700' :
-                                b.status === 'REJECTED' ? 'bg-rose-100 text-rose-700' :
-                                'bg-amber-100 text-amber-700'
-                              }`}>
-                                {b.status}
-                              </span>
+                              <BookingTimeline status={b.status} />
                               <button
                                 onClick={() => { setSelectedBookingToChat(b); setIsChatModalOpen(true); }}
                                 className="text-xs font-bold bg-surface-container-high text-on-surface border border-outline hover:bg-outline transition-colors px-3 py-1.5 rounded-lg flex items-center justify-center gap-1.5"
