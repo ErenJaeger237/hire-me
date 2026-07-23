@@ -3,13 +3,14 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Bell, MessageSquare, Plus, Settings, LogOut, Briefcase, Wallet, Menu, X, Moon, Sun } from 'lucide-react';
 import { authService, userService } from '../services/api';
 import WalletModal from './WalletModal';
-
+import UpgradeModal from './UpgradeModal';
 export default function Navbar({ user, onLogout, onOpenSettings, onUserUpdate }) {
   const navigate = useNavigate();
   const [showNotifications, setShowNotifications] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isWalletOpen, setIsWalletOpen] = useState(false);
+  const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
   const [notifications, setNotifications] = useState({ total: 0, unreadMessages: 0, pendingJobs: 0 });
   const [isDarkMode, setIsDarkMode] = useState(() => {
     return localStorage.getItem('theme') === 'dark' || 
@@ -67,7 +68,7 @@ export default function Navbar({ user, onLogout, onOpenSettings, onUserUpdate })
             <Link to="/" className="text-primary font-bold border-b-2 border-primary pb-1 text-sm">Find Services</Link>
           )}
           {user?.role === 'CLIENT' && (
-            <button onClick={() => alert('Role switching feature is coming soon!')} className="text-on-surface-variant font-medium hover:text-primary transition-colors duration-200 text-sm">
+            <button onClick={() => setIsUpgradeModalOpen(true)} className="text-on-surface-variant font-medium hover:text-primary transition-colors duration-200 text-sm">
               Become a Professional
             </button>
           )}
@@ -82,15 +83,29 @@ export default function Navbar({ user, onLogout, onOpenSettings, onUserUpdate })
             <span className="text-sm font-black">{user.wallet_balance || 0} FCFA</span>
           </button>
 
-          <WalletModal 
-            isOpen={isWalletOpen} 
-            onClose={() => setIsWalletOpen(false)} 
-            currentBalance={user.wallet_balance || 0}
-            onTopUpSuccess={(newBalance) => {
-              onUserUpdate({ wallet_balance: newBalance });
-              setIsWalletOpen(false);
-            }}
-          />
+          {isWalletOpen && (
+            <WalletModal 
+              isOpen={isWalletOpen} 
+              onClose={() => setIsWalletOpen(false)} 
+              currentBalance={user.wallet_balance || 0}
+              onTopUpSuccess={(newBalance) => {
+                onUserUpdate({ wallet_balance: newBalance });
+                setIsWalletOpen(false);
+              }}
+            />
+          )}
+
+          {isUpgradeModalOpen && (
+            <UpgradeModal 
+              isOpen={isUpgradeModalOpen} 
+              onClose={() => setIsUpgradeModalOpen(false)} 
+              onUpgradeSuccess={(res) => {
+                onUserUpdate(res.user);
+                navigate('/provider-dashboard');
+                window.location.reload();
+              }}
+            />
+          )}
 
           <div className="relative">
               <button
@@ -231,9 +246,11 @@ export default function Navbar({ user, onLogout, onOpenSettings, onUserUpdate })
               <Link to="/" onClick={() => setIsMobileMenuOpen(false)} className="text-primary font-bold text-base px-2 py-1 rounded-md hover:bg-surface-container">Find Services</Link>
             )}
             {user?.role === 'CLIENT' && (
-              <button onClick={() => { setIsMobileMenuOpen(false); alert('Role switching feature is coming soon!'); }} className="text-on-surface-variant font-medium hover:text-primary transition-colors duration-200 text-left px-2 py-1 text-base">
-                Become a Professional
-              </button>
+              <div className="py-2">
+                <button onClick={() => { setIsMobileMenuOpen(false); setIsUpgradeModalOpen(true); }} className="text-on-surface-variant font-medium hover:text-primary transition-colors duration-200 text-left px-2 py-1 text-base">
+                  Become a Professional
+                </button>
+              </div>
             )}
             {!user && (
               <Link to="/login" onClick={() => setIsMobileMenuOpen(false)} className="text-on-surface-variant font-medium hover:text-primary transition-colors duration-200 text-left px-2 py-1 text-base">

@@ -62,10 +62,18 @@ export const userService = {
     const response = await api.get('/users/profile');
     return response.data;
   },
-  getNotifications: async () => {
-    const response = await api.get('/users/notifications');
-    return response.data;
+  updateProfile: async (data) => {
+    const res = await api.put('/users/profile', data);
+    return res.data;
   },
+  upgradeToProvider: async (trade, hourlyRate) => {
+    const res = await api.post('/users/upgrade-to-provider', { trade, hourlyRate });
+    return res.data;
+  },
+  getNotifications: async () => {
+    const res = await api.get('/users/notifications');
+    return res.data;
+  }
 };
 
 export default api;
