@@ -1,1 +1,1 @@
-// Provider Search Tests\ntest("should return only verified providers", () => { /* logic */ });\n
+// Provider Search Tests\ntest("should return only verified providers", () => { /* logic */ });\ntest("should properly update provider rating after review", () => { /* logic */ });\n
