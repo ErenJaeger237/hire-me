@@ -14,7 +14,7 @@ const BookingTimeline = ({ status }) => {
     { id: 'COMPLETED', label: 'Done & Paid' }
   ];
   
-  if (status === 'REJECTED') {
+  if (status === 'REJECTED' || status === 'CANCELLED') {
     return (
       <div className="flex items-center gap-1 mb-3">
          <div className="flex flex-col items-center">
@@ -24,7 +24,7 @@ const BookingTimeline = ({ status }) => {
          <div className="h-0.5 w-8 bg-rose-500 -mt-4"></div>
          <div className="flex flex-col items-center">
             <div className="w-4 h-4 rounded-full bg-rose-500 border-2 border-rose-500"></div>
-            <span className="text-[10px] font-bold mt-1 text-rose-600">Rejected & Refunded</span>
+            <span className="text-[10px] font-bold mt-1 text-rose-600">{status === 'REJECTED' ? 'Rejected & Refunded' : 'Cancelled & Refunded'}</span>
          </div>
       </div>
     );
@@ -398,6 +398,15 @@ export default function ClientDashboard({ user, onUserUpdate }) {
                               >
                                 Open Chat
                               </button>
+                              {b.status === 'PENDING' && (
+                                <button
+                                  onClick={() => handleUpdateStatus(b.id, 'CANCELLED')}
+                                  disabled={updatingBookingId === b.id}
+                                  className={`text-xs font-bold bg-rose-500/10 text-rose-600 border border-rose-500/20 hover:bg-rose-500/20 transition-colors px-3 py-1.5 rounded-lg flex items-center justify-center gap-1.5 ${updatingBookingId === b.id ? 'opacity-70' : ''}`}
+                                >
+                                  {updatingBookingId === b.id ? '...' : <><AlertCircle className="w-3.5 h-3.5" /> Cancel Booking</>}
+                                </button>
+                              )}
                               {b.status === 'ACCEPTED' && (
                                 <button
                                   onClick={() => handleUpdateStatus(b.id, 'COMPLETED')}
