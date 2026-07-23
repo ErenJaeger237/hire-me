@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:5000/api';
+export const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -53,6 +53,17 @@ export const bookingService = {
   },
   submitReview: async (bookingId, reviewData) => {
     const response = await api.post(`/bookings/${bookingId}/review`, reviewData);
+    return response.data;
+  },
+};
+
+export const userService = {
+  getProfile: async () => {
+    const response = await api.get('/users/profile');
+    return response.data;
+  },
+  getNotifications: async () => {
+    const response = await api.get('/users/notifications');
     return response.data;
   },
 };

@@ -1,27 +1,55 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Filter, Star, Calendar, DollarSign, Clock, CheckCircle, AlertCircle, RefreshCw } from 'lucide-react';
-import { providerService, bookingService } from '../services/api';
+import { Search, Filter, Star, Calendar, DollarSign, Clock, CheckCircle, AlertCircle, RefreshCw, ChevronDown, CheckCircle2, UserCheck } from 'lucide-react';
+import { providerService, bookingService, userService } from '../services/api';
 import BookingModal from '../components/BookingModal';
+import ChatModal from '../components/ChatModal';
+import ReviewModal from '../components/ReviewModal';
+import ProviderProfileModal from '../components/ProviderProfileModal';
 
-export default function ClientDashboard({ user }) {
+export default function ClientDashboard({ user, onUserUpdate }) {
   const [providers, setProviders] = useState([]);
   const [bookings, setBookings] = useState([]);
 
   // Filters
   const [category, setCategory] = useState('');
-  const [maxPrice, setMaxPrice] = useState(100);
+  const [maxPrice, setMaxPrice] = useState(50000);
+  const [sortBy, setSortBy] = useState('distance');
 
   // Modal State
   const [selectedProvider, setSelectedProvider] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedBookingToChat, setSelectedBookingToChat] = useState(null);
+  const [isChatModalOpen, setIsChatModalOpen] = useState(false);
+  
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [selectedProviderForProfile, setSelectedProviderForProfile] = useState(null);
+  const [selectedBookingForReview, setSelectedBookingForReview] = useState(null);
+  const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
 
   const [loading, setLoading] = useState(true);
   const [feedbackMsg, setFeedbackMsg] = useState('');
+  const [updatingBookingId, setUpdatingBookingId] = useState(null);
 
   const fetchProviders = async () => {
     try {
-      const data = await providerService.getProviders({ category, maxPrice });
-      setProviders(data);
+      const lat = user?.location_lat;
+      const lng = user?.location_lng;
+      const data = await providerService.getProviders({ category, maxPrice, lat, lng });
+      
+      let fetchedProviders = data.providers || data;
+      
+      // Client-side sorting
+      fetchedProviders.sort((a, b) => {
+        if (sortBy === 'price_asc') return a.hourlyRate - b.hourlyRate;
+        if (sortBy === 'price_desc') return b.hourlyRate - a.hourlyRate;
+        if (sortBy === 'rating') return b.rating - a.rating;
+        // Default: distance
+        if (a.distance === null) return 1;
+        if (b.distance === null) return -1;
+        return a.distance - b.distance;
+      });
+
+      setProviders([...fetchedProviders]);
     } catch (err) {
       console.error('Error fetching providers:', err);
     }
@@ -29,24 +57,44 @@ export default function ClientDashboard({ user }) {
 
   const fetchBookings = async () => {
     try {
-      const data = await bookingService.getBookings();
-      setBookings(data);
+      const res = await bookingService.getBookings();
+      setBookings(res.bookings || []);
     } catch (err) {
-      console.error('Error fetching bookings:', err);
+      console.error('Failed to fetch bookings:', err);
+    }
+  };
+
+  const handleUpdateStatus = async (bookingId, newStatus) => {
+    setUpdatingBookingId(bookingId);
+    try {
+      await bookingService.updateStatus(bookingId, newStatus);
+      fetchBookings();
+      // Fetch latest profile to update wallet balance in Navbar
+      if (onUserUpdate) {
+        userService.getProfile().then(profile => {
+          onUserUpdate({ wallet_balance: profile.user.wallet_balance });
+        }).catch(err => console.error(err));
+      }
+      setFeedbackMsg(`Job successfully marked as ${newStatus}!`);
+      setTimeout(() => setFeedbackMsg(''), 3000);
+    } catch (err) {
+      alert(err.response?.data?.error || `Failed to update booking.`);
+    } finally {
+      setUpdatingBookingId(null);
     }
   };
 
   useEffect(() => {
     setLoading(true);
-    Promise.all([fetchProviders(), fetchBookings()]).finally(() => setLoading(false));
-  }, []);
+    fetchBookings().finally(() => setLoading(false));
+  }, []); // Only fetch bookings once on mount
 
   useEffect(() => {
     const timer = setTimeout(() => {
       fetchProviders();
     }, 300);
     return () => clearTimeout(timer);
-  }, [category, maxPrice]);
+  }, [category, maxPrice, sortBy]); // Fetch providers initially and whenever filters change
 
   const handleOpenBooking = (provider) => {
     setSelectedProvider(provider);
@@ -54,197 +102,304 @@ export default function ClientDashboard({ user }) {
   };
 
   const handleBookingSuccess = () => {
-    setFeedbackMsg('Your booking request was submitted successfully!');
+    setIsModalOpen(false);
     fetchBookings();
-    setTimeout(() => setFeedbackMsg(''), 4000);
+    if (onUserUpdate) {
+      userService.getProfile().then(profile => {
+        onUserUpdate({ wallet_balance: profile.user.wallet_balance });
+      }).catch(err => console.error(err));
+    }
+    setFeedbackMsg('Booking request successfully sent!');
+    setTimeout(() => setFeedbackMsg(''), 3000);
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-6 py-8 space-y-10">
-      {/* Top Banner */}
-      <div className="glass-card rounded-3xl p-8 border border-slate-800 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 bg-gradient-to-r from-indigo-950/40 via-slate-900 to-purple-950/40">
-        <div>
-          <div className="text-xs uppercase font-bold text-indigo-400 tracking-wider mb-1">Client Portal</div>
-          <h2 className="text-3xl font-extrabold text-white">Find Skilled Professionals Near You</h2>
-          <p className="text-slate-400 text-sm mt-1">Book verified day-to-day professionals at transparent hourly rates.</p>
-        </div>
+    <div className="flex flex-col min-h-screen pt-16">
+      {/* Hero Search Banner matching Stitch */}
+      <section className="pt-12 pb-16 bg-surface-container w-full">
+        <div className="max-w-6xl mx-auto px-4 md:px-8 text-center">
+          <h1 className="text-4xl md:text-5xl font-bold mb-8 text-on-surface">Find the perfect expert for your task</h1>
+          
+          <div className="bg-surface-bright rounded-xl p-2 flex flex-col md:flex-row items-center gap-2 max-w-4xl mx-auto shadow-sm border border-outline">
+            <div className="flex-1 w-full flex items-center px-4 border-r-0 md:border-r border-outline">
+              <Search className="w-5 h-5 text-on-surface-variant mr-3" />
+              <input
+                type="text"
+                placeholder="What service do you need?"
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                className="w-full py-3 bg-transparent border-none focus:ring-0 text-on-surface placeholder:text-on-surface-variant outline-none"
+              />
+            </div>
+            
+            <div className="w-full md:w-64 px-4 flex items-center border-r-0 md:border-r border-outline">
+              <DollarSign className="w-5 h-5 text-on-surface-variant mr-2" />
+              <div className="flex flex-col w-full">
+                <span className="text-xs text-on-surface-variant font-medium">Max: {maxPrice} FCFA/hr</span>
+                <input
+                  type="range"
+                  min="1000"
+                  max="100000"
+                  step="1000"
+                  value={maxPrice}
+                  onChange={(e) => setMaxPrice(e.target.value)}
+                  className="w-full accent-primary"
+                />
+              </div>
+            </div>
+            
+            <button 
+              onClick={fetchProviders}
+              className="w-full md:w-auto bg-primary text-on-primary px-8 py-3 rounded-lg font-medium hover:bg-primary/90 transition-all"
+            >
+              Search
+            </button>
+          </div>
 
-        <button
-          onClick={() => {
-            fetchProviders();
-            fetchBookings();
-          }}
-          className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-semibold flex items-center gap-2 border border-slate-700 transition-all"
-        >
-          <RefreshCw className="w-3.5 h-3.5" /> Refresh Data
-        </button>
-      </div>
+          <div className="mt-6 flex flex-wrap justify-center gap-2">
+            {['Plumbing', 'Electrical', 'Cleaning', 'Development'].map(tag => (
+              <span 
+                key={tag}
+                onClick={() => setCategory(tag)}
+                className="text-xs font-medium text-on-surface-variant px-4 py-1.5 bg-surface-container-high rounded-full hover:bg-outline-variant cursor-pointer transition-colors"
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
+        </div>
+      </section>
 
       {feedbackMsg && (
-        <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm font-semibold flex items-center gap-3 animate-in fade-in">
-          <CheckCircle className="w-5 h-5 shrink-0" />
-          <span>{feedbackMsg}</span>
+        <div className="max-w-6xl mx-auto w-full px-4 md:px-8 mt-6">
+          <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 text-sm font-semibold flex items-center gap-3">
+            <CheckCircle className="w-5 h-5 shrink-0" />
+            <span>{feedbackMsg}</span>
+          </div>
         </div>
       )}
 
-      {/* Discovery & Search Section */}
-      <div className="space-y-6">
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
-          <h3 className="text-xl font-bold text-white flex items-center gap-2">
-            <Search className="w-5 h-5 text-indigo-400" /> Professional Discovery
-          </h3>
-
-          {/* Filter Bar */}
-          <div className="flex flex-wrap items-center gap-3">
-            <div className="relative">
-              <Search className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
-              <input
-                type="text"
-                placeholder="Filter by trade (e.g. Tutor)..."
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                className="bg-slate-900 border border-slate-800 rounded-xl pl-9 pr-4 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 w-56"
-              />
-            </div>
-
-            <div className="flex items-center gap-2 bg-slate-900 border border-slate-800 rounded-xl px-3 py-1.5 text-xs text-slate-300">
-              <Filter className="w-3.5 h-3.5 text-indigo-400" />
-              <span>Max: ${maxPrice}/hr</span>
-              <input
-                type="range"
-                min="10"
-                max="150"
-                step="5"
-                value={maxPrice}
-                onChange={(e) => setMaxPrice(e.target.value)}
-                className="w-24 accent-indigo-500 cursor-pointer"
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Provider Cards Grid */}
-        {loading ? (
-          <div className="text-center py-12 text-slate-500 text-sm">Loading service professionals...</div>
-        ) : providers.length === 0 ? (
-          <div className="glass-card rounded-2xl p-8 text-center text-slate-400 border border-slate-800">
-            No service providers match your current search criteria. Try adjusting the trade filter or max rate.
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {providers.map((p) => (
-              <div
-                key={p.id}
-                className="glass-card glass-card-hover rounded-2xl p-6 border border-slate-800 flex flex-col justify-between"
+      {/* Main Content: Provider Grid */}
+      <main className="flex-grow bg-surface py-12">
+        <div className="max-w-6xl mx-auto px-4 md:px-8">
+          
+          <div className="flex justify-between items-center mb-8">
+            <h2 className="text-2xl font-bold text-on-surface">Top Recommended Professionals</h2>
+            <div className="flex items-center gap-2 text-sm font-medium text-on-surface-variant">
+              Sort by: 
+              <select 
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className="bg-transparent border-none text-primary cursor-pointer focus:ring-0 font-bold"
               >
-                <div className="space-y-4">
-                  <div className="flex items-start justify-between">
-                    <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center text-white font-bold text-lg shadow-md shadow-indigo-600/20">
-                      {p.name.charAt(0)}
-                    </div>
-                    <div className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-bold">
-                      <Star className="w-3.5 h-3.5 fill-amber-400" />
-                      {p.rating.toFixed(1)}
+                <option value="distance">Distance</option>
+                <option value="price_asc">Price: Low to High</option>
+                <option value="price_desc">Price: High to Low</option>
+                <option value="rating">Rating: Highest</option>
+              </select>
+            </div>
+          </div>
+
+          {loading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {[1, 2, 3, 4, 5, 6].map(i => (
+                <div key={i} className="bg-surface-bright rounded-2xl p-6 border border-outline animate-pulse">
+                  <div className="flex justify-between items-start mb-4">
+                    <div className="flex gap-4">
+                      <div className="w-16 h-16 rounded-full bg-surface-container" />
+                      <div className="space-y-2 pt-2">
+                        <div className="h-4 bg-surface-container rounded w-24" />
+                        <div className="h-3 bg-surface-container rounded w-16" />
+                      </div>
                     </div>
                   </div>
-
-                  <div>
-                    <h4 className="text-lg font-bold text-white">{p.name}</h4>
-                    <span className="inline-block px-2.5 py-0.5 rounded-full bg-indigo-500/10 text-indigo-400 text-xs font-semibold border border-indigo-500/20 mt-1">
-                      {p.trade}
-                    </span>
-                  </div>
-
-                  <p className="text-slate-400 text-xs line-clamp-3 leading-relaxed">
-                    {p.bio || 'Experienced local professional available for direct hire.'}
-                  </p>
+                  <div className="h-3 bg-surface-container rounded mb-2 w-3/4" />
+                  <div className="h-3 bg-surface-container rounded w-1/2 mb-6" />
+                  <div className="h-10 bg-surface-container rounded-xl w-full" />
                 </div>
-
-                <div className="pt-6 mt-4 border-t border-slate-800/80 flex items-center justify-between">
-                  <div>
-                    <span className="text-[10px] uppercase font-semibold text-slate-500 block">Hourly Rate</span>
-                    <span className="text-xl font-extrabold text-white">${p.hourlyRate}</span>
-                    <span className="text-xs text-slate-400">/hr</span>
+              ))}
+            </div>
+          ) : providers.length === 0 ? (
+            <div className="bg-surface-bright rounded-xl p-8 text-center text-on-surface-variant border border-outline">
+              No service providers match your current search criteria.
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {providers.map((p) => (
+                <div 
+                  key={p.id} 
+                  className="bg-surface-bright rounded-2xl p-6 border border-outline hover:border-primary/30 hover:shadow-lg transition-all group cursor-pointer flex flex-col h-full"
+                  onClick={() => { setSelectedProviderForProfile(p); setIsProfileModalOpen(true); }}
+                >
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="relative">
+                      <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-surface-container">
+                        {p.profilePicture ? (
+                          <img src={p.profilePicture} alt={p.name} className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="w-full h-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xl">
+                            {p.name.charAt(0)}
+                          </div>
+                        )}
+                      </div>
+                      <span className="absolute bottom-0 right-0 bg-white rounded-full p-0.5 border border-outline" title="Verified">
+                        <CheckCircle2 className="w-4 h-4 text-emerald-500 fill-emerald-100" />
+                      </span>
+                    </div>
+                    <div className="flex flex-col items-end">
+                      <span className="text-primary bg-primary/10 px-3 py-1 rounded-full text-xs font-medium border border-primary/20">
+                        {p.trade}
+                      </span>
+                      <div className="mt-2 flex items-center gap-1 text-amber-500">
+                        <Star className="w-4 h-4 fill-amber-500" />
+                        <span className="text-sm font-bold text-on-surface">{p.rating?.toFixed(1) || '0.0'}</span>
+                      </div>
+                    </div>
                   </div>
-
-                  <button
-                    onClick={() => handleOpenBooking(p)}
-                    className="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs shadow-md shadow-indigo-600/30 transition-all"
-                  >
-                    Book Now
-                  </button>
+                  
+                  <h3 className="text-lg font-bold text-on-surface mb-1 group-hover:text-primary transition-colors">{p.name}</h3>
+                  <p className="text-primary font-bold text-base mb-3">{p.hourlyRate} FCFA <span className="text-xs font-normal text-on-surface-variant">/hr</span></p>
+                  
+                  <p className="text-on-surface-variant text-sm line-clamp-2 mb-6">
+                    {p.bio || 'Experienced local professional available for direct hire. Dedicated to high-quality results.'}
+                  </p>
+                  
+                  <div className="mt-auto">
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); handleOpenBooking(p); }}
+                      className="w-full py-2.5 rounded-lg border-2 border-primary text-primary font-medium hover:bg-primary hover:text-white transition-all active:scale-95"
+                    >
+                      Book Now
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+          
+          {/* My Bookings Section in Stitch UI format */}
+          <div className="mt-16">
+            <h2 className="text-2xl font-bold text-on-surface mb-6 border-t border-outline pt-12">My Booking History</h2>
+            
+            {bookings.length === 0 ? (
+              <div className="bg-surface-bright rounded-2xl p-12 text-center flex flex-col items-center justify-center border border-outline border-dashed shadow-sm">
+                <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mb-4">
+                  <UserCheck className="w-8 h-8 text-blue-500" />
+                </div>
+                <h3 className="text-xl font-extrabold text-on-surface mb-2">You haven't hired anyone yet!</h3>
+                <p className="text-on-surface-variant max-w-sm mb-6">When you book a professional, their details and progress will appear here. Start by browsing our top-rated local experts.</p>
+                <button 
+                  onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                  className="bg-primary text-on-primary px-6 py-2.5 rounded-lg font-bold hover:bg-opacity-90 transition-all shadow-md active:scale-95"
+                >
+                  Browse Professionals
+                </button>
+              </div>
+            ) : (
+              <div className="bg-surface-bright rounded-xl border border-outline overflow-hidden shadow-sm">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-sm">
+                    <thead className="bg-surface-container text-on-surface-variant uppercase tracking-wider font-medium border-b border-outline text-xs">
+                      <tr>
+                        <th className="px-6 py-4">Provider</th>
+                        <th className="px-6 py-4">Service Date</th>
+                        <th className="px-6 py-4">Description</th>
+                        <th className="px-6 py-4">Status & Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-outline text-on-surface">
+                      {bookings.map((b) => (
+                        <tr key={b.id} className="hover:bg-surface-container transition-colors">
+                          <td className="px-6 py-4 font-semibold">
+                            {b.provider?.user?.name || 'Professional'}
+                            <span className="block text-xs font-normal text-primary mt-0.5">{b.provider?.trade}</span>
+                          </td>
+                          <td className="px-6 py-4">
+                            <span className="font-medium">{new Date(b.job_date).toLocaleDateString()}</span>
+                            <span className="block text-xs text-on-surface-variant mt-0.5">{new Date(b.job_date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                          </td>
+                          <td className="px-6 py-4 max-w-xs truncate text-on-surface-variant">
+                            {b.description || 'No description.'}
+                          </td>
+                          <td className="px-6 py-4">
+                            <div className="flex flex-col gap-2">
+                              <span className={`text-xs font-bold px-3 py-1 rounded-full w-fit ${
+                                b.status === 'ACCEPTED' ? 'bg-blue-100 text-blue-700' :
+                                b.status === 'COMPLETED' ? 'bg-emerald-100 text-emerald-700' :
+                                b.status === 'REJECTED' ? 'bg-rose-100 text-rose-700' :
+                                'bg-amber-100 text-amber-700'
+                              }`}>
+                                {b.status}
+                              </span>
+                              <button
+                                onClick={() => { setSelectedBookingToChat(b); setIsChatModalOpen(true); }}
+                                className="text-xs font-bold bg-surface-container-high text-on-surface border border-outline hover:bg-outline transition-colors px-3 py-1.5 rounded-lg flex items-center justify-center gap-1.5"
+                              >
+                                Open Chat
+                              </button>
+                              {b.status === 'ACCEPTED' && (
+                                <button
+                                  onClick={() => handleUpdateStatus(b.id, 'COMPLETED')}
+                                  disabled={updatingBookingId === b.id}
+                                  className={`text-xs font-bold bg-emerald-600 text-white hover:bg-emerald-700 transition-colors px-3 py-1.5 rounded-lg flex items-center justify-center gap-1.5 ${updatingBookingId === b.id ? 'opacity-70' : ''}`}
+                                >
+                                  {updatingBookingId === b.id ? '...' : <><CheckCircle className="w-3.5 h-3.5" /> Mark Completed</>}
+                                </button>
+                              )}
+                              {b.status === 'COMPLETED' && b.rating === null && (
+                                <button
+                                  onClick={() => { setSelectedBookingForReview(b); setIsReviewModalOpen(true); }}
+                                  className="text-xs font-bold bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 transition-colors px-3 py-1.5 rounded-lg flex items-center justify-center gap-1.5"
+                                >
+                                  <Star className="w-3.5 h-3.5 fill-primary text-primary" />
+                                  Leave Review
+                                </button>
+                              )}
+                              {b.rating !== null && (
+                                <div className="flex items-center gap-1 text-xs font-bold text-amber-500">
+                                  <Star className="w-3.5 h-3.5 fill-amber-500" /> {b.rating} / 5
+                                </div>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
               </div>
-            ))}
+            )}
           </div>
-        )}
-      </div>
+        </div>
+      </main>
 
-      {/* My Active Bookings Section */}
-      <div className="space-y-6 pt-6">
-        <h3 className="text-xl font-bold text-white flex items-center gap-2">
-          <Calendar className="w-5 h-5 text-purple-400" /> My Booking History
-        </h3>
-
-        {bookings.length === 0 ? (
-          <div className="glass-card rounded-2xl p-6 text-center text-slate-500 border border-slate-800 text-sm">
-            You haven't requested any jobs yet. Select a professional above to create your first booking.
-          </div>
-        ) : (
-          <div className="glass-card rounded-2xl border border-slate-800 overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs">
-                <thead className="bg-slate-900/80 text-slate-400 uppercase tracking-wider font-semibold border-b border-slate-800">
-                  <tr>
-                    <th className="px-6 py-3.5">Provider</th>
-                    <th className="px-6 py-3.5">Service Date</th>
-                    <th className="px-6 py-3.5">Description</th>
-                    <th className="px-6 py-3.5">Status</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-800/60 text-slate-300">
-                  {bookings.map((b) => (
-                    <tr key={b.id} className="hover:bg-slate-900/40 transition-colors">
-                      <td className="px-6 py-4 font-semibold text-white">
-                        {b.provider?.user?.name || 'Professional'}
-                        <span className="block text-[11px] font-normal text-indigo-400">{b.provider?.trade}</span>
-                      </td>
-                      <td className="px-6 py-4 font-mono">
-                        {new Date(b.job_date).toLocaleDateString()} {new Date(b.job_date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                      </td>
-                      <td className="px-6 py-4 max-w-xs truncate text-slate-400">
-                        {b.description || 'No description provided.'}
-                      </td>
-                      <td className="px-6 py-4">
-                        <span
-                          className={`px-3 py-1 rounded-full text-[11px] font-bold inline-block border ${
-                            b.status === 'PENDING'
-                              ? 'bg-amber-500/10 text-amber-400 border-amber-500/20'
-                              : b.status === 'ACCEPTED'
-                              ? 'bg-sky-500/10 text-sky-400 border-sky-500/20'
-                              : b.status === 'COMPLETED'
-                              ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
-                              : 'bg-rose-500/10 text-rose-400 border-rose-500/20'
-                          }`}
-                        >
-                          {b.status}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Checkout Modal */}
+      {/* Modals */}
       <BookingModal
         provider={selectedProvider}
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onSuccess={handleBookingSuccess}
+      />
+
+      <ChatModal
+        booking={selectedBookingToChat}
+        isOpen={isChatModalOpen}
+        onClose={() => setIsChatModalOpen(false)}
+        currentUser={user}
+      />
+
+      <ProviderProfileModal
+        provider={selectedProviderForProfile}
+        isOpen={isProfileModalOpen}
+        onClose={() => setIsProfileModalOpen(false)}
+        onBookNow={handleOpenBooking}
+      />
+      
+      <ReviewModal
+        booking={selectedBookingForReview}
+        isOpen={isReviewModalOpen}
+        onClose={() => { setIsReviewModalOpen(false); fetchBookings(); fetchProviders(); }}
+        onSuccess={() => { /* no-op for now, until toast is added */ }}
       />
     </div>
   );

@@ -1,134 +1,203 @@
 import React, { useState } from 'react';
-import { Calendar, Clock, DollarSign, X, CheckCircle, AlertCircle } from 'lucide-react';
+import { X, Calendar, Clock } from 'lucide-react';
 import { bookingService } from '../services/api';
 
 export default function BookingModal({ provider, isOpen, onClose, onSuccess }) {
   const [jobDate, setJobDate] = useState('');
-  const [jobTime, setJobTime] = useState('10:00');
+  const [jobTime, setJobTime] = useState('');
+  const [hoursInput, setHoursInput] = useState('1');
+  const [hours, setHours] = useState(1);
   const [description, setDescription] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
 
   if (!isOpen || !provider) return null;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!jobDate) {
-      setError('Please select a date for the service.');
+    setError('');
+
+    // Pre-flight Wallet Balance Check
+    const userStr = localStorage.getItem('hire_me_user');
+    let walletBalance = 0;
+    if (userStr) {
+      try {
+        walletBalance = JSON.parse(userStr).wallet_balance || 0;
+      } catch(e) {}
+    }
+    
+    const bookingFee = provider.hourly_rate * hours;
+    if (walletBalance < bookingFee) {
+      setError(`Insufficient wallet balance. You have ${walletBalance} FCFA but need ${bookingFee} FCFA (for ${hours} hrs). Please top up your wallet first.`);
+      return;
+    }
+    
+    if (!jobDate || !jobTime) {
+      setError('Please select both a date and time.');
       return;
     }
 
-    setLoading(true);
-    setError('');
-
     try {
+      setIsSubmitting(true);
       const scheduledDateTime = new Date(`${jobDate}T${jobTime}:00Z`).toISOString();
+      
       await bookingService.createBooking({
         providerId: provider.id,
         date: scheduledDateTime,
         description,
+        hours,
       });
 
-      onSuccess();
-      onClose();
+      setSuccessMessage('Booking request submitted successfully!');
+      if (onSuccess) onSuccess();
+      setTimeout(() => {
+        onClose();
+        setSuccessMessage('');
+        setJobDate('');
+        setJobTime('');
+        setDescription('');
+      }, 2000);
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to submit booking request.');
     } finally {
-      setLoading(false);
+      setIsSubmitting(false);
     }
   };
 
+  const timeSlots = ['09:00', '13:00', '16:00', '19:00'];
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-sm p-4">
-      <div className="glass-card w-full max-w-lg rounded-2xl p-6 shadow-2xl border border-slate-800 relative animate-in fade-in zoom-in-95 duration-200">
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition-colors"
-        >
-          <X className="w-5 h-5" />
-        </button>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-on-surface/40 backdrop-blur-sm">
+      <div className="bg-surface-bright w-full max-w-lg rounded-xl shadow-sm overflow-hidden flex flex-col border border-outline animate-in fade-in zoom-in duration-300">
+        
+        <header className="flex items-center justify-between px-8 py-4 border-b border-outline">
+          <h2 className="text-2xl font-bold text-on-surface">Schedule Booking with {provider.name}</h2>
+          <button onClick={onClose} aria-label="Close modal" className="p-1 hover:bg-surface-container transition-colors rounded-full">
+            <X className="w-6 h-6 text-on-surface-variant" />
+          </button>
+        </header>
 
-        <div className="flex items-center gap-3 mb-6">
-          <div className="w-12 h-12 rounded-xl bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400 font-bold text-xl">
-            {provider.name.charAt(0)}
-          </div>
-          <div>
-            <h3 className="text-xl font-bold text-white">Book {provider.name}</h3>
-            <p className="text-xs text-indigo-400 font-medium">{provider.trade} • ${provider.hourlyRate}/hr</p>
-          </div>
-        </div>
-
-        {error && (
-          <div className="mb-4 p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 flex items-center gap-2 text-rose-400 text-xs">
-            <AlertCircle className="w-4 h-4 shrink-0" />
-            <span>{error}</span>
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">
-              Select Date & Time
-            </label>
-            <div className="grid grid-cols-2 gap-3">
-              <div className="relative">
-                <input
-                  type="date"
-                  value={jobDate}
-                  min={new Date().toISOString().split('T')[0]}
-                  onChange={(e) => setJobDate(e.target.value)}
-                  className="w-full bg-slate-900 border border-slate-700/60 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500 transition-colors"
-                  required
-                />
-              </div>
-              <div>
-                <input
-                  type="time"
-                  value={jobTime}
-                  onChange={(e) => setJobTime(e.target.value)}
-                  className="w-full bg-slate-900 border border-slate-700/60 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500 transition-colors"
-                  required
-                />
-              </div>
+        {successMessage ? (
+          <div className="p-8 text-center">
+            <div className="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
             </div>
+            <h3 className="text-xl font-bold text-slate-900 mb-2">Booking Requested!</h3>
+            <p className="text-slate-600">{successMessage}</p>
           </div>
+        ) : (
+          <form onSubmit={handleSubmit} className="flex flex-col max-h-[80vh]">
+            <div className="px-8 py-8 space-y-6 overflow-y-auto">
+              
+              {error && (
+                <div className="p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg">
+                  {error}
+                </div>
+              )}
 
-          <div>
-            <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">
-              Job Description / Requirements
-            </label>
-            <textarea
-              rows={3}
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Describe what you need help with (e.g. 2 hours of calculus exam review, electrical outlet repair...)"
-              className="w-full bg-slate-900 border border-slate-700/60 rounded-xl p-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition-colors"
-              required
-            />
-          </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-on-surface-variant block">Select Date</label>
+                <div className="relative">
+                  <input
+                    type="date"
+                    required
+                    min={new Date().toISOString().split('T')[0]}
+                    value={jobDate}
+                    onChange={(e) => setJobDate(e.target.value)}
+                    className="w-full h-12 bg-surface-bright border border-outline rounded-lg px-4 focus:ring-2 focus:ring-primary focus:border-primary outline-none text-base"
+                  />
+                </div>
+              </div>
 
-          <div className="p-3 rounded-xl bg-slate-900/60 border border-slate-800 flex items-center justify-between text-xs text-slate-400">
-            <span>Standard Rate</span>
-            <span className="font-semibold text-white">${provider.hourlyRate} / hour</span>
-          </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-on-surface-variant block">Available Time Slots</label>
+                <div className="flex flex-wrap gap-3">
+                  {timeSlots.map((time) => (
+                    <button
+                      key={time}
+                      type="button"
+                      onClick={() => setJobTime(time)}
+                      className={`px-4 py-2 border rounded-full text-sm font-medium transition-all duration-200 ${
+                        jobTime === time 
+                          ? 'border-primary bg-primary text-white shadow-sm' 
+                          : 'border-outline text-on-surface-variant hover:border-primary hover:text-primary'
+                      }`}
+                    >
+                      {time}
+                    </button>
+                  ))}
+                </div>
+              </div>
 
-          <div className="flex items-center gap-3 pt-2">
-            <button
-              type="button"
-              onClick={onClose}
-              className="w-1/2 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium text-sm transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-1/2 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white font-semibold text-sm shadow-lg shadow-indigo-600/30 transition-all"
-            >
-              {loading ? 'Submitting...' : 'Confirm Request'}
-            </button>
-          </div>
-        </form>
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-on-surface-variant block" htmlFor="hours-est">Estimated Duration (Hours)</label>
+                <input
+                  id="hours-est"
+                  type="number"
+                  min="1"
+                  max="100"
+                  value={hoursInput}
+                  onChange={(e) => {
+                    setHoursInput(e.target.value);
+                    const val = parseInt(e.target.value, 10);
+                    if (!isNaN(val) && val >= 1) setHours(val);
+                  }}
+                  className="w-full bg-surface-bright border border-outline rounded-lg p-3 pl-4 focus:ring-2 focus:ring-primary focus:border-primary outline-none text-base"
+                />
+                <p className="text-xs text-on-surface-variant">
+                  Total Escrow Fee: <span className="font-bold text-primary">{provider.hourly_rate * hours} FCFA</span>
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-on-surface-variant block" htmlFor="task-desc">Detailed Task Description</label>
+                <textarea
+                  id="task-desc"
+                  rows="4"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  placeholder="Please describe the specific work needed, any tools required, and entry instructions..."
+                  className="w-full bg-surface-bright border border-outline rounded-lg p-4 focus:ring-2 focus:ring-primary focus:border-primary outline-none text-base resize-none"
+                ></textarea>
+              </div>
+
+              <div className="bg-surface-container-low p-4 rounded-xl border border-outline-variant flex flex-col gap-2">
+                <div className="flex justify-between items-center text-base">
+                  <span className="text-on-surface-variant">Rate</span>
+                  <span className="font-medium">{provider.hourlyRate} FCFA / hr</span>
+                </div>
+                <div className="flex justify-between items-center text-base">
+                  <span className="text-on-surface-variant">Estimated Duration</span>
+                  <span className="font-medium">2 Hours</span>
+                </div>
+                <div className="pt-3 mt-3 border-t border-outline-variant flex justify-between items-center">
+                  <span className="text-sm font-bold uppercase tracking-wider text-on-surface">Estimated Total</span>
+                  <span className="text-2xl font-bold text-primary">{provider.hourlyRate * 2} FCFA</span>
+                </div>
+              </div>
+
+            </div>
+
+            <footer className="px-8 py-4 bg-surface-container-lowest border-t border-outline flex items-center justify-end gap-4 mt-auto">
+              <button
+                type="button"
+                onClick={onClose}
+                disabled={isSubmitting}
+                className="px-6 py-2 text-sm font-medium text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="px-8 py-2 bg-primary text-white rounded-lg text-sm font-medium shadow-sm hover:opacity-90 active:scale-95 transition-all flex items-center gap-2 disabled:opacity-70"
+              >
+                {isSubmitting ? 'Submitting...' : 'Confirm & Submit Booking'}
+              </button>
+            </footer>
+          </form>
+        )}
       </div>
     </div>
   );

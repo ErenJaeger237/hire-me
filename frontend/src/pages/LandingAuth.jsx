@@ -216,8 +216,8 @@ export default function LandingAuth({ onLoginSuccess }) {
                             required
                           />
                         </div>
-                        <div>
-                          <label className="block text-xs font-semibold text-slate-700 mb-1">Hourly Rate ($)</label>
+                        <div className="flex-1">
+                          <label className="block text-xs font-semibold text-slate-700 mb-1">Hourly Rate (FCFA)</label>
                           <input
                             type="number"
                             step="0.5"

@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import Navbar from './components/Navbar';
+import Layout from './components/Layout';
 import LandingAuth from './pages/LandingAuth';
 import ClientDashboard from './pages/ClientDashboard';
 import ProviderDashboard from './pages/ProviderDashboard';
+import AdminDashboard from './pages/AdminDashboard';
+import ErrorBoundary from './components/ErrorBoundary';
 
 export default function App() {
   const [user, setUser] = useState(null);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   useEffect(() => {
     const savedUser = localStorage.getItem('hire_me_user');
@@ -25,18 +28,26 @@ export default function App() {
     setUser(null);
   };
 
-  return (
-    <BrowserRouter>
-      <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans">
-        <Navbar user={user} onLogout={handleLogout} />
+  const handleUserUpdate = (updatedUserProps) => {
+    setUser(prev => {
+      const newUser = { ...prev, ...updatedUserProps };
+      localStorage.setItem('hire_me_user', JSON.stringify(newUser));
+      return newUser;
+    });
+  };
 
-        <main className="flex-1">
-          <Routes>
+  return (
+    <ErrorBoundary>
+      <BrowserRouter>
+        <Routes>
+          <Route element={<Layout user={user} onLogout={handleLogout} isSettingsOpen={isSettingsOpen} setIsSettingsOpen={setIsSettingsOpen} onUserUpdate={handleUserUpdate} />}>
             <Route
               path="/"
               element={
                 !user ? (
                   <LandingAuth onLoginSuccess={(u) => setUser(u)} />
+                ) : user.role === 'ADMIN' ? (
+                  <Navigate to="/admin-dashboard" replace />
                 ) : user.role === 'PROVIDER' ? (
                   <Navigate to="/provider-dashboard" replace />
                 ) : (
@@ -44,33 +55,40 @@ export default function App() {
                 )
               }
             />
-
             <Route
               path="/client-dashboard"
               element={
                 user && user.role === 'CLIENT' ? (
-                  <ClientDashboard user={user} />
+                  <ClientDashboard user={user} onUserUpdate={handleUserUpdate} />
                 ) : (
                   <Navigate to="/" replace />
                 )
               }
             />
-
             <Route
               path="/provider-dashboard"
               element={
                 user && user.role === 'PROVIDER' ? (
-                  <ProviderDashboard user={user} />
+                  <ProviderDashboard user={user} onUserUpdate={handleUserUpdate} />
                 ) : (
                   <Navigate to="/" replace />
                 )
               }
             />
-
+            <Route
+              path="/admin-dashboard"
+              element={
+                user && user.role === 'ADMIN' ? (
+                  <AdminDashboard user={user} onUserUpdate={handleUserUpdate} />
+                ) : (
+                  <Navigate to="/" replace />
+                )
+              }
+            />
             <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </main>
-      </div>
-    </BrowserRouter>
+          </Route>
+        </Routes>
+      </BrowserRouter>
+    </ErrorBoundary>
   );
 }
