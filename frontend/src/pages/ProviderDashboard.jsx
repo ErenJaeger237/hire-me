@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Clock, CheckCircle2, XCircle, Award, Calendar, DollarSign, RefreshCw, AlertCircle, MessageSquare, Star, Loader2, BarChart2 } from 'lucide-react';
-import { bookingService } from '../services/api';
-import { userService } from '../services/api';
+import { bookingService, userService, providerService } from '../services/api';
 import ChatModal from '../components/ChatModal';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 
@@ -14,6 +13,9 @@ export default function ProviderDashboard({ user, onUserUpdate }) {
   const [selectedBookingToChat, setSelectedBookingToChat] = useState(null);
   const [isChatModalOpen, setIsChatModalOpen] = useState(false);
 
+  const [activeTab, setActiveTab] = useState('jobs');
+  const [earnings, setEarnings] = useState(null);
+
   const fetchProviderBookings = async () => {
     setLoading(true);
     setActionError('');
@@ -21,14 +23,17 @@ export default function ProviderDashboard({ user, onUserUpdate }) {
       const data = await bookingService.getBookings();
       setBookings(data.bookings || data);
       
+      const earningsData = await providerService.getEarnings();
+      setEarnings(earningsData);
+      
       if (onUserUpdate) {
         userService.getProfile().then(profile => {
           onUserUpdate({ wallet_balance: profile.user.wallet_balance });
         }).catch(err => console.error(err));
       }
     } catch (err) {
-      console.error('Failed to fetch provider bookings:', err);
-      setActionError('Could not load incoming job requests.');
+      console.error('Failed to fetch provider dashboard data:', err);
+      setActionError('Could not load dashboard data.');
     } finally {
       setLoading(false);
     }
@@ -91,7 +96,25 @@ export default function ProviderDashboard({ user, onUserUpdate }) {
         </div>
       )}
 
-      {/* Analytics Chart */}
+      {/* Tabs */}
+      <div className="flex items-center gap-4 border-b border-outline">
+        <button
+          onClick={() => setActiveTab('jobs')}
+          className={`pb-3 text-sm font-bold border-b-2 transition-colors ${activeTab === 'jobs' ? 'border-primary text-primary' : 'border-transparent text-on-surface-variant hover:text-on-surface'}`}
+        >
+          Job Board
+        </button>
+        <button
+          onClick={() => setActiveTab('earnings')}
+          className={`pb-3 text-sm font-bold border-b-2 transition-colors ${activeTab === 'earnings' ? 'border-primary text-primary' : 'border-transparent text-on-surface-variant hover:text-on-surface'}`}
+        >
+          Earnings
+        </button>
+      </div>
+
+      {activeTab === 'jobs' && (
+        <>
+          {/* Analytics Chart */}
       <div className="glass-card rounded-3xl p-6 border border-outline shadow-sm bg-surface-bright">
         <h3 className="text-lg font-bold text-on-surface mb-4 flex items-center gap-2">
           <BarChart2 className="w-5 h-5 text-primary" /> Job Status Analytics
@@ -285,8 +308,63 @@ export default function ProviderDashboard({ user, onUserUpdate }) {
               ))
             )}
           </div>
+          </div>
         </div>
       </div>
+      </>
+      )}
+
+      {activeTab === 'earnings' && earnings && (
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="glass-card rounded-3xl p-6 border border-outline bg-surface-bright flex flex-col items-center text-center shadow-sm">
+              <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-4">
+                <DollarSign className="w-6 h-6 text-primary" />
+              </div>
+              <h3 className="text-sm font-bold text-on-surface-variant uppercase tracking-wider mb-2">Total Earnings</h3>
+              <p className="text-3xl font-extrabold text-on-surface">{earnings.totalEarnings.toLocaleString()} FCFA</p>
+            </div>
+            
+            <div className="glass-card rounded-3xl p-6 border border-outline bg-surface-bright flex flex-col items-center text-center shadow-sm">
+              <div className="w-12 h-12 bg-amber-500/10 rounded-full flex items-center justify-center mb-4">
+                <Clock className="w-6 h-6 text-amber-500" />
+              </div>
+              <h3 className="text-sm font-bold text-on-surface-variant uppercase tracking-wider mb-2">Pending Escrow</h3>
+              <p className="text-3xl font-extrabold text-on-surface">{earnings.pendingEscrow.toLocaleString()} FCFA</p>
+              <p className="text-xs text-on-surface-variant mt-2">Locked in active jobs (5% fee applied)</p>
+            </div>
+
+            <div className="glass-card rounded-3xl p-6 border border-outline bg-surface-bright flex flex-col items-center text-center shadow-sm">
+              <div className="w-12 h-12 bg-emerald-500/10 rounded-full flex items-center justify-center mb-4">
+                <CheckCircle2 className="w-6 h-6 text-emerald-500" />
+              </div>
+              <h3 className="text-sm font-bold text-on-surface-variant uppercase tracking-wider mb-2">Completed Jobs</h3>
+              <p className="text-3xl font-extrabold text-on-surface">{earnings.completedJobs}</p>
+            </div>
+          </div>
+
+          <div className="glass-card rounded-3xl p-6 border border-outline bg-surface-bright shadow-sm">
+            <h3 className="text-lg font-bold text-on-surface mb-4">Recent Transactions</h3>
+            {earnings.recentTransactions.length === 0 ? (
+              <p className="text-sm text-on-surface-variant py-4 text-center">No transactions yet.</p>
+            ) : (
+              <div className="divide-y divide-outline">
+                {earnings.recentTransactions.map(tx => (
+                  <div key={tx.id} className="py-4 flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-bold text-on-surface">{tx.type.replace('_', ' ')}</p>
+                      <p className="text-xs text-on-surface-variant mt-1">{new Date(tx.createdAt).toLocaleString()}</p>
+                    </div>
+                    <div className={`font-bold ${tx.amount > 0 ? 'text-emerald-500' : 'text-on-surface'}`}>
+                      {tx.amount > 0 ? '+' : ''}{Number(tx.amount).toLocaleString()} FCFA
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       <ChatModal
         booking={selectedBookingToChat}

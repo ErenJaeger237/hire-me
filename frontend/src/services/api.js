@@ -36,6 +36,10 @@ export const providerService = {
     const response = await api.get('/providers', { params });
     return response.data;
   },
+  getEarnings: async () => {
+    const response = await api.get('/providers/me/earnings');
+    return response.data;
+  }
 };
 
 export const bookingService = {
