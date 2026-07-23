@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Filter, Star, Calendar, DollarSign, Clock, CheckCircle, AlertCircle, RefreshCw, ChevronDown, CheckCircle2, UserCheck } from 'lucide-react';
-import { providerService, bookingService, userService } from '../services/api';
+import { Search, Filter, Star, Calendar, DollarSign, Clock, CheckCircle, AlertCircle, RefreshCw, ChevronDown, CheckCircle2, UserCheck, Heart } from 'lucide-react';
+import { providerService, bookingService, userService, savedService } from '../services/api';
+import socket from '../services/socket';
 import BookingModal from '../components/BookingModal';
 import ChatModal from '../components/ChatModal';
 import ReviewModal from '../components/ReviewModal';
@@ -84,6 +85,7 @@ export default function ClientDashboard({ user, onUserUpdate }) {
   const [loading, setLoading] = useState(true);
   const [feedbackMsg, setFeedbackMsg] = useState('');
   const [updatingBookingId, setUpdatingBookingId] = useState(null);
+  const [savedIds, setSavedIds] = useState(new Set());
 
   const fetchProviders = async () => {
     try {
@@ -120,6 +122,10 @@ export default function ClientDashboard({ user, onUserUpdate }) {
   };
 
   const handleUpdateStatus = async (bookingId, newStatus) => {
+    if (newStatus === 'CANCELLED') {
+      const confirmed = window.confirm('Are you sure you want to cancel this booking? Your escrow funds will be refunded.');
+      if (!confirmed) return;
+    }
     setUpdatingBookingId(bookingId);
     try {
       await bookingService.updateStatus(bookingId, newStatus);
@@ -130,10 +136,16 @@ export default function ClientDashboard({ user, onUserUpdate }) {
           onUserUpdate({ wallet_balance: profile.user.wallet_balance });
         }).catch(err => console.error(err));
       }
-      setFeedbackMsg(`Job successfully marked as ${newStatus}!`);
-      setTimeout(() => setFeedbackMsg(''), 3000);
+      setFeedbackMsg(
+        newStatus === 'CANCELLED'
+          ? 'Booking cancelled. Funds refunded to your wallet.'
+          : `Job successfully marked as ${newStatus}!`
+      );
+      setTimeout(() => setFeedbackMsg(''), 4000);
     } catch (err) {
-      alert(err.response?.data?.error || `Failed to update booking.`);
+      const msg = err.response?.data?.error || `Failed to update booking.`;
+      setFeedbackMsg(`Error: ${msg}`);
+      setTimeout(() => setFeedbackMsg(''), 5000);
     } finally {
       setUpdatingBookingId(null);
     }
@@ -142,7 +154,43 @@ export default function ClientDashboard({ user, onUserUpdate }) {
   useEffect(() => {
     setLoading(true);
     fetchBookings().finally(() => setLoading(false));
+
+    // Load saved provider IDs
+    savedService.getSaved().then(data => {
+      setSavedIds(new Set((data.saved || []).map(p => p.id)));
+    }).catch(err => console.error('Failed to load saved:', err));
+
+    const handleBookingUpdate = (data) => {
+      console.log('Booking update received:', data);
+      fetchBookings();
+      // Optionally update wallet if relevant
+      if (onUserUpdate) {
+        userService.getProfile().then(profile => {
+          onUserUpdate({ wallet_balance: profile.user.wallet_balance });
+        }).catch(err => console.error(err));
+      }
+    };
+
+    socket.on('booking_updated', handleBookingUpdate);
+
+    return () => {
+      socket.off('booking_updated', handleBookingUpdate);
+    };
   }, []); // Only fetch bookings once on mount
+
+  const handleToggleSave = async (providerId) => {
+    try {
+      if (savedIds.has(providerId)) {
+        await savedService.unsave(providerId);
+        setSavedIds(prev => { const next = new Set(prev); next.delete(providerId); return next; });
+      } else {
+        await savedService.save(providerId);
+        setSavedIds(prev => new Set([...prev, providerId]));
+      }
+    } catch (err) {
+      console.error('Toggle save failed:', err);
+    }
+  };
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -332,12 +380,23 @@ export default function ClientDashboard({ user, onUserUpdate }) {
                     {p.bio || 'Experienced local professional available for direct hire. Dedicated to high-quality results.'}
                   </p>
                   
-                  <div className="mt-auto">
+                  <div className="mt-auto flex gap-2">
                     <button 
                       onClick={(e) => { e.stopPropagation(); handleOpenBooking(p); }}
-                      className="w-full py-2.5 rounded-lg border-2 border-primary text-primary font-medium hover:bg-primary hover:text-white transition-all active:scale-95"
+                      className="flex-1 py-2.5 rounded-lg border-2 border-primary text-primary font-medium hover:bg-primary hover:text-white transition-all active:scale-95"
                     >
                       Book Now
+                    </button>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); handleToggleSave(p.id); }}
+                      title={savedIds.has(p.id) ? 'Remove from favourites' : 'Save to favourites'}
+                      className={`p-2.5 rounded-lg border-2 transition-all active:scale-95 ${
+                        savedIds.has(p.id)
+                          ? 'border-red-400 bg-red-50 text-red-500'
+                          : 'border-outline text-on-surface-variant hover:border-red-400 hover:text-red-400'
+                      }`}
+                    >
+                      <Heart className={`w-5 h-5 ${savedIds.has(p.id) ? 'fill-red-500' : ''}`} />
                     </button>
                   </div>
                 </div>

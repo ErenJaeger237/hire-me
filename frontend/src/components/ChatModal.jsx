@@ -31,8 +31,11 @@ export default function ChatModal({ booking, isOpen, onClose, currentUser }) {
     });
 
     socketRef.current.on('new_message', (msg) => {
-      setMessages((prev) => [...prev, msg]);
-      setTimeout(scrollToBottom, 100);
+      // Only add if it's from the other person (sender already added optimistically)
+      if (msg.sender_id !== currentUser.id) {
+        setMessages((prev) => [...prev, msg]);
+        setTimeout(scrollToBottom, 100);
+      }
     });
 
     const getAuthHeaders = () => {
@@ -70,23 +73,36 @@ export default function ChatModal({ booking, isOpen, onClose, currentUser }) {
 
   const handleSendMessage = async (e) => {
     e.preventDefault();
-    if (!newMessage.trim()) return;
+    const content = newMessage.trim();
+    if (!content) return;
 
-    const getAuthHeaders = () => {
-      const token = localStorage.getItem('hire_me_token');
-      return { headers: { Authorization: `Bearer ${token}` } };
+    // Optimistically add message so sender always sees it
+    const optimisticMsg = {
+      id: `temp-${Date.now()}`,
+      booking_id: booking.id,
+      sender_id: currentUser.id,
+      content,
+      createdAt: new Date().toISOString(),
     };
+    setMessages((prev) => [...prev, optimisticMsg]);
+    setNewMessage('');
+    setTimeout(scrollToBottom, 100);
+
+    const getAuthHeaders = () => ({
+      headers: { Authorization: `Bearer ${localStorage.getItem('hire_me_token')}` }
+    });
 
     try {
-      await axios.post(`${API_BASE_URL}/bookings/${booking.id}/messages`, {
-        content: newMessage,
+      const res = await axios.post(`${API_BASE_URL}/bookings/${booking.id}/messages`, {
+        content,
       }, getAuthHeaders());
-      setNewMessage('');
-      // We don't fetch messages, the socket will broadcast it back to us, 
-      // or we rely on the DB. Let's just let the socket handle it, or add optimistically.
-      // Actually, since we emit to the room, the sender also receives it.
+      // Replace the optimistic message with the real one from the server
+      setMessages((prev) => prev.map((m) => m.id === optimisticMsg.id ? res.data : m));
     } catch (err) {
       console.error('Error sending message:', err);
+      // Remove the optimistic message on failure
+      setMessages((prev) => prev.filter((m) => m.id !== optimisticMsg.id));
+      alert('Failed to send message. Please try again.');
     }
   };
 

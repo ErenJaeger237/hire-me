@@ -3,6 +3,7 @@ import { Clock, CheckCircle2, XCircle, Award, Calendar, DollarSign, RefreshCw, A
 import { bookingService, userService, providerService } from '../services/api';
 import ChatModal from '../components/ChatModal';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
+import socket from '../services/socket';
 
 export default function ProviderDashboard({ user, onUserUpdate }) {
   const [bookings, setBookings] = useState([]);
@@ -41,6 +42,18 @@ export default function ProviderDashboard({ user, onUserUpdate }) {
 
   useEffect(() => {
     fetchProviderBookings();
+
+    const handleUpdate = () => {
+      fetchProviderBookings();
+    };
+
+    socket.on('new_booking', handleUpdate);
+    socket.on('booking_updated', handleUpdate);
+
+    return () => {
+      socket.off('new_booking', handleUpdate);
+      socket.off('booking_updated', handleUpdate);
+    };
   }, []);
 
   const [loadingBookingId, setLoadingBookingId] = useState(null);
