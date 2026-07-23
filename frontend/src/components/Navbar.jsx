@@ -137,23 +137,35 @@ export default function Navbar({ user, onLogout, onOpenSettings, onUserUpdate })
                     ) : (
                       <div className="divide-y divide-outline">
                         {notifications.unreadMessages > 0 && (
-                          <div className="p-4 hover:bg-surface-container transition-colors flex gap-3 cursor-pointer" onClick={() => setShowNotifications(false)}>
-                            <div className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0">
-                              <MessageSquare className="w-4 h-4" />
+                          <div 
+                            className="p-4 hover:bg-surface-container transition-colors flex gap-3 cursor-pointer" 
+                            onClick={() => {
+                              setShowNotifications(false);
+                              navigate(user?.role === 'PROVIDER' ? '/provider-dashboard' : '/client-dashboard');
+                            }}
+                          >
+                            <div className="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                              <MessageSquare className="w-5 h-5" />
                             </div>
                             <div>
-                              <h5 className="text-xs font-bold text-on-surface">New Messages</h5>
+                              <p className="text-sm font-bold text-on-surface">New Messages</p>
                               <p className="text-xs text-on-surface-variant mt-0.5">You have {notifications.unreadMessages} unread chat messages.</p>
                             </div>
                           </div>
                         )}
                         {notifications.pendingJobs > 0 && (
-                          <div className="p-4 hover:bg-surface-container transition-colors flex gap-3 cursor-pointer" onClick={() => setShowNotifications(false)}>
-                            <div className="w-8 h-8 rounded-full bg-warning/10 text-warning flex items-center justify-center shrink-0">
-                              <Briefcase className="w-4 h-4" />
+                          <div 
+                            className="p-4 hover:bg-surface-container transition-colors flex gap-3 cursor-pointer" 
+                            onClick={() => {
+                              setShowNotifications(false);
+                              navigate('/provider-dashboard');
+                            }}
+                          >
+                            <div className="w-10 h-10 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center shrink-0">
+                              <Briefcase className="w-5 h-5" />
                             </div>
                             <div>
-                              <h5 className="text-xs font-bold text-on-surface">Pending Jobs</h5>
+                              <p className="text-sm font-bold text-on-surface">New Jobs</p>
                               <p className="text-xs text-on-surface-variant mt-0.5">You have {notifications.pendingJobs} new booking requests to review.</p>
                             </div>
                           </div>
