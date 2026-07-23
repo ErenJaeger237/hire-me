@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Hire Me | Join the Marketplace</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-secondary-container": "#00714d",
+                    "tertiary": "#943700",
+                    "primary": "#004ac6",
+                    "on-tertiary": "#ffffff",
+                    "surface-container-lowest": "#FFFFFF",
+                    "surface-container-highest": "#CBD5E1",
+                    "tertiary-fixed": "#ffdbcd",
+                    "surface": "#F8FAFC",
+                    "on-error-container": "#93000a",
+                    "outline": "#E2E8F0",
+                    "primary-fixed-dim": "#b4c5ff",
+                    "surface-bright": "#faf8ff",
+                    "surface-dim": "#d9d9e5",
+                    "inverse-on-surface": "#f0f0fb",
+                    "outline-variant": "#c3c6d7",
+                    "secondary": "#006c49",
+                    "tertiary-container": "#bc4800",
+                    "surface-container": "#F1F5F9",
+                    "background": "#faf8ff",
+                    "error": "#EF4444",
+                    "surface-tint": "#0053db",
+                    "on-tertiary-fixed": "#360f00",
+                    "error-container": "#ffdad6",
+                    "on-primary-fixed": "#00174b",
+                    "on-surface": "#191b23",
+                    "on-secondary-fixed": "#002113",
+                    "inverse-primary": "#b4c5ff",
+                    "on-surface-variant": "#64748B",
+                    "secondary-container": "#6cf8bb",
+                    "surface-container-high": "#e7e7f3",
+                    "on-tertiary-container": "#ffede6",
+                    "surface-container-low": "#F8FAFC",
+                    "primary-fixed": "#dbe1ff",
+                    "secondary-fixed": "#6ffbbe",
+                    "secondary-fixed-dim": "#4edea3",
+                    "tertiary-fixed-dim": "#ffb596",
+                    "warning": "#F59E0B",
+                    "on-secondary": "#ffffff",
+                    "on-primary": "#ffffff",
+                    "primary-container": "#2563eb",
+                    "on-secondary-fixed-variant": "#005236",
+                    "on-primary-container": "#eeefff",
+                    "on-error": "#ffffff",
+                    "inverse-surface": "#2e3039",
+                    "on-background": "#191b23",
+                    "on-primary-fixed-variant": "#003ea8",
+                    "on-tertiary-fixed-variant": "#7d2d00",
+                    "surface-variant": "#e1e2ed"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "xs": "8px",
+                    "xxs": "4px",
+                    "base": "4px",
+                    "lg": "24px",
+                    "md": "16px",
+                    "margin-mobile": "16px",
+                    "sm": "12px",
+                    "xl": "32px",
+                    "gutter": "16px",
+                    "margin-desktop": "32px"
+            },
+            "fontFamily": {
+                    "body-md": ["Inter"],
+                    "headline-lg": ["Inter"],
+                    "label-md": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "headline-xl": ["Inter"],
+                    "headline-xl-mobile": ["Inter"],
+                    "label-sm": ["Inter"],
+                    "headline-md": ["Inter"]
+            },
+            "fontSize": {
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                    "label-md": ["14px", {"lineHeight": "20px", "fontWeight": "500"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "headline-xl": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "headline-xl-mobile": ["36px", {"lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "700"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+      body {
+        font-family: 'Inter', sans-serif;
+        background-color: #F8FAFC;
+      }
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      .glass-effect {
+        background: rgba(255, 255, 255, 0.8);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+      }
+      .auth-split-container {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+      @media (min-width: 768px) {
+        .auth-split-container {
+          flex-direction: row;
+        }
+      }
+    </style>
+</head>
+<body class="text-on-surface">
+<!-- TopNavBar is suppressed on Transactional/Auth screens per mandate -->
+<main class="auth-split-container w-full">
+<!-- Left Column: Hero Talent Content -->
+<section class="w-full md:w-1/2 flex flex-col justify-center px-margin-mobile md:px-xl py-xl bg-surface relative overflow-hidden">
+<!-- Atmospheric Background Element -->
+<div class="absolute top-[-10%] right-[-10%] w-96 h-96 bg-primary/5 rounded-full blur-3xl"></div>
+<div class="absolute bottom-[-5%] left-[-5%] w-64 h-64 bg-secondary/5 rounded-full blur-3xl"></div>
+<div class="relative z-10 max-w-xl">
+<!-- Brand Identity -->
+<div class="flex items-center gap-2 mb-xl">
+<div class="w-10 h-10 bg-primary flex items-center justify-center rounded-lg text-on-primary">
+<span class="material-symbols-outlined">work</span>
+</div>
+<span class="font-headline-md text-headline-md text-primary font-bold tracking-tight">Hire Me</span>
+</div>
+<h1 class="text-headline-xl-mobile md:text-headline-xl font-headline-xl text-[#0F172A] mb-md leading-tight">
+          Connecting Local Talent with Instant Community Hiring
+        </h1>
+<p class="text-body-lg font-body-lg text-on-surface-variant mb-xl max-w-lg">
+          Join the professional marketplace where skills meet opportunity. Whether you're offering expertise or seeking quality help, we bridge the gap instantly.
+        </p>
+<!-- Trust Badges: Elevated Cards -->
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-md">
+<!-- Badge 1 -->
+<div class="bg-surface-bright p-md rounded-xl shadow-sm border border-outline flex items-start gap-md hover:shadow-md transition-shadow duration-300">
+<div class="p-xs bg-primary-fixed rounded-lg text-on-primary-fixed-variant">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">contact_emergency</span>
+</div>
+<div>
+<p class="font-label-md text-label-md text-on-surface font-bold">Direct Contacts</p>
+<p class="text-label-sm font-label-sm text-on-surface-variant">Real-time messaging with 0% middleman fees.</p>
+</div>
+</div>
+<!-- Badge 2 -->
+<div class="bg-surface-bright p-md rounded-xl shadow-sm border border-outline flex items-start gap-md hover:shadow-md transition-shadow duration-300">
+<div class="p-xs bg-secondary-container rounded-lg text-on-secondary-container">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">verified</span>
+</div>
+<div>
+<p class="font-label-md text-label-md text-on-surface font-bold">Verified Professionals</p>
+<p class="text-label-sm font-label-sm text-on-surface-variant">Background-checked and skill-vetted locals.</p>
+</div>
+</div>
+</div>
+<!-- Decorative Image Context -->
+<div class="mt-xl hidden md:block">
+<div class="w-full aspect-video rounded-xl overflow-hidden shadow-lg border border-outline-variant relative">
+<div class="absolute inset-0 bg-gradient-to-t from-on-surface/40 to-transparent"></div>
+<div class="w-full h-full bg-cover bg-center" data-alt="A cinematic, high-quality photograph of a diverse group of modern professionals collaborating in a bright, sunlit community workspace. The image features soft, natural lighting and a clean, professional aesthetic with a palette of deep blues and soft whites. The environment is warm, inviting, and suggests productivity and mutual growth in a high-utility corporate setting." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBrD6DQaY_FFCBa-l9fXYDOukvZZM8KWr1YDPRnU0b7yri_4toXNCYn7PXHRrTvClQCZyURokmPdrAsQSizQKDmmFKwMtLAuZSve_Fkq0aVXseZxgD_eLoOa4OHF7hoWUq6WVInALb3BQbwmQhCsiHBPj8eb-yRNjxwSLTzHSYe_kW-jCipNf6j0X4cl_NQKK-3mdMXRPXQ83I7m70vVjODqEkrPYTcf014GeNtpRy0Mb-JRyb2A37b')"></div>
+<div class="absolute bottom-md left-md text-on-primary">
+<p class="text-label-md font-label-md opacity-90">Helping 50,000+ neighbors since 2024</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Right Column: Auth Card -->
+<section class="w-full md:w-1/2 flex items-center justify-center bg-surface-container-lowest px-margin-mobile md:px-xl py-xl">
+<div class="w-full max-w-md bg-white p-xl rounded-xl border border-outline shadow-sm">
+<header class="mb-lg text-center">
+<h2 class="text-headline-md font-headline-md text-on-surface mb-xxs">Create Account</h2>
+<p class="text-body-md font-body-md text-on-surface-variant">Start your journey with us today.</p>
+</header>
+<!-- Segmented Role Selector -->
+<div class="flex p-1 bg-surface-container rounded-lg mb-lg">
+<button class="flex-1 py-xs text-label-md font-label-md rounded-md transition-all duration-200 bg-white shadow-sm text-primary font-bold" id="role-client" onclick="toggleRole('client')">
+            Client
+          </button>
+<button class="flex-1 py-xs text-label-md font-label-md rounded-md transition-all duration-200 text-on-surface-variant" id="role-pro" onclick="toggleRole('pro')">
+            Professional
+          </button>
+</div>
+<!-- Social OAuth Buttons -->
+<div class="flex flex-col gap-sm mb-lg">
+<button class="w-full flex items-center justify-center gap-md py-sm border border-outline rounded-lg text-label-md font-label-md hover:bg-surface transition-colors">
+<svg class="w-5 h-5" viewbox="0 0 24 24">
+<path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"></path>
+<path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"></path>
+<path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"></path>
+<path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"></path>
+</svg>
+            Continue with Google
+          </button>
+<button class="w-full flex items-center justify-center gap-md py-sm bg-on-surface text-white rounded-lg text-label-md font-label-md hover:opacity-90 transition-opacity">
+<svg class="w-5 h-5" fill="currentColor" viewbox="0 0 24 24">
+<path d="M17.05 20.28c-.96 0-2.04-.6-3.23-.6-1.19 0-2.38.61-3.23.61-1.39 0-4.06-2.45-4.06-6.42 0-3.87 2.45-5.91 4.79-5.91 1.25 0 2.29.77 3.09.77.78 0 1.95-.81 3.3-.81 1.18 0 2.6.58 3.46 1.83-2.63 1.4-2.21 4.88.38 5.92-1.04 2.4-2.65 4.61-4.5 4.61zM12.03 7.25c-.21-2.46 1.73-4.5 3.8-4.5.17 2.4-2.12 4.64-3.8 4.5z"></path>
+</svg>
+            Continue with Apple
+          </button>
+</div>
+<div class="relative flex items-center justify-center mb-lg">
+<div class="absolute w-full border-t border-outline"></div>
+<span class="relative bg-white px-md text-label-sm font-label-sm text-on-surface-variant">Or register with email</span>
+</div>
+<!-- Registration Form -->
+<form class="space-y-md">
+<div>
+<label class="block text-label-md font-label-md text-on-surface mb-xs" for="fullname">Full Name</label>
+<input class="w-full px-md py-sm rounded-lg border border-outline focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all placeholder:text-outline-variant bg-surface-bright text-body-md font-body-md" id="fullname" placeholder="John Doe" type="text"/>
+</div>
+<div>
+<label class="block text-label-md font-label-md text-on-surface mb-xs" for="email">Email Address</label>
+<input class="w-full px-md py-sm rounded-lg border border-outline focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all placeholder:text-outline-variant bg-surface-bright text-body-md font-body-md" id="email" placeholder="john@example.com" type="email"/>
+</div>
+<div class="relative">
+<label class="block text-label-md font-label-md text-on-surface mb-xs" for="password">Password</label>
+<input class="w-full px-md py-sm rounded-lg border border-outline focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all placeholder:text-outline-variant bg-surface-bright text-body-md font-body-md" id="password" placeholder="••••••••" type="password"/>
+<button class="absolute right-md top-[38px] text-on-surface-variant hover:text-primary" type="button">
+<span class="material-symbols-outlined text-[20px]">visibility</span>
+</button>
+</div>
+<div class="flex items-start gap-xs py-xxs">
+<input class="mt-1 rounded border-outline text-primary focus:ring-primary" id="terms" type="checkbox"/>
+<label class="text-label-sm font-label-sm text-on-surface-variant" for="terms">
+              By creating an account, I agree to the <a class="text-primary hover:underline" href="#">Terms of Service</a> and <a class="text-primary hover:underline" href="#">Privacy Policy</a>.
+            </label>
+</div>
+<button class="w-full py-md bg-primary text-on-primary rounded-lg text-label-md font-label-md font-bold flex items-center justify-center gap-sm hover:opacity-90 active:scale-[0.98] transition-all shadow-sm" type="submit">
+            Register Account
+            <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</button>
+</form>
+<p class="mt-lg text-center text-label-md font-label-md text-on-surface-variant">
+          Already have an account? <a class="text-primary font-bold hover:underline" href="#">Log in</a>
+</p>
+</div>
+</section>
+</main>
+<footer class="w-full bg-surface-container py-12 px-margin-desktop mt-auto flex flex-col items-center gap-8 border-t border-outline">
+<div class="w-full max-w-7xl flex flex-col md:flex-row justify-between items-center md:items-start gap-8">
+<div class="flex flex-col items-center md:items-start gap-2">
+<span class="text-headline-md font-headline-md font-bold text-on-surface">Hire Me</span>
+<p class="text-label-sm font-label-sm text-on-surface-variant text-center md:text-left max-w-xs">Connecting specialized local talent with the community through a secure, instant marketplace.</p>
+</div>
+<div class="grid grid-cols-2 sm:grid-cols-3 gap-xl">
+<div class="flex flex-col gap-sm">
+<span class="text-label-md font-bold text-on-surface">Platform</span>
+<a class="text-label-sm font-label-sm text-on-surface-variant hover:text-primary transition-colors" href="#">Trust &amp; Safety</a>
+<a class="text-label-sm font-label-sm text-on-surface-variant hover:text-primary transition-colors" href="#">How It Works</a>
+<a class="text-label-sm font-label-sm text-on-surface-variant hover:text-primary transition-colors" href="#">Help Center</a>
+</div>
+<div class="flex flex-col gap-sm">
+<span class="text-label-md font-bold text-on-surface">Company</span>
+<a class="text-label-sm font-label-sm text-on-surface-variant hover:text-primary transition-colors" href="#">Career Opportunities</a>
+<a class="text-label-sm font-label-sm text-on-surface-variant hover:text-primary transition-colors" href="#">Privacy Policy</a>
+<a class="text-label-sm font-label-sm text-on-surface-variant hover:text-primary transition-colors" href="#">Terms of Service</a>
+</div>
+<div class="flex flex-col gap-sm col-span-2 sm:col-span-1">
+<span class="text-label-md font-bold text-on-surface">Social</span>
+<div class="flex gap-md">
+<a class="w-8 h-8 rounded-full bg-outline flex items-center justify-center text-on-surface hover:bg-primary hover:text-white transition-all" href="#"><span class="material-symbols-outlined text-sm">share</span></a>
+<a class="w-8 h-8 rounded-full bg-outline flex items-center justify-center text-on-surface hover:bg-primary hover:text-white transition-all" href="#"><span class="material-symbols-outlined text-sm">groups</span></a>
+</div>
+</div>
+</div>
+</div>
+<div class="w-full border-t border-outline-variant pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+<p class="text-label-sm font-label-sm text-on-surface-variant">© 2024 Hire Me Marketplace. All rights reserved.</p>
+<div class="flex gap-md">
+<span class="material-symbols-outlined text-on-surface-variant hover:text-primary cursor-pointer">language</span>
+<span class="text-label-sm font-label-sm text-on-surface-variant">English (US)</span>
+</div>
+</div>
+</footer>
+<script>
+    function toggleRole(role) {
+      const clientBtn = document.getElementById('role-client');
+      const proBtn = document.getElementById('role-pro');
+      
+      if (role === 'client') {
+        clientBtn.classList.add('bg-white', 'shadow-sm', 'text-primary', 'font-bold');
+        clientBtn.classList.remove('text-on-surface-variant');
+        
+        proBtn.classList.remove('bg-white', 'shadow-sm', 'text-primary', 'font-bold');
+        proBtn.classList.add('text-on-surface-variant');
+      } else {
+        proBtn.classList.add('bg-white', 'shadow-sm', 'text-primary', 'font-bold');
+        proBtn.classList.remove('text-on-surface-variant');
+        
+        clientBtn.classList.remove('bg-white', 'shadow-sm', 'text-primary', 'font-bold');
+        clientBtn.classList.add('text-on-surface-variant');
+      }
+    }
+
+    // Gentle micro-interaction for cards
+    document.querySelectorAll('.hover\\:shadow-md').forEach(card => {
+      card.addEventListener('mouseenter', () => {
+        card.style.transform = 'translateY(-2px)';
+      });
+      card.addEventListener('mouseleave', () => {
+        card.style.transform = 'translateY(0)';
+      });
+    });
+  </script>
+</body></html>
