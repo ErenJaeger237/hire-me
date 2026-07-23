@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Bell, MessageSquare, Plus, Settings, LogOut, Briefcase, Wallet, Menu, X } from 'lucide-react';
+import { Bell, MessageSquare, Plus, Settings, LogOut, Briefcase, Wallet, Menu, X, Moon, Sun } from 'lucide-react';
 import { authService, userService } from '../services/api';
 import WalletModal from './WalletModal';
 
@@ -11,6 +11,20 @@ export default function Navbar({ user, onLogout, onOpenSettings, onUserUpdate })
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isWalletOpen, setIsWalletOpen] = useState(false);
   const [notifications, setNotifications] = useState({ total: 0, unreadMessages: 0, pendingJobs: 0 });
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    return localStorage.getItem('theme') === 'dark' || 
+      (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches);
+  });
+
+  useEffect(() => {
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+    }
+  }, [isDarkMode]);
 
   useEffect(() => {
     if (!user) return;
@@ -136,11 +150,17 @@ export default function Navbar({ user, onLogout, onOpenSettings, onUserUpdate })
               )}
             </div>
 
-            <button className="text-on-surface-variant hover:text-primary transition-colors p-2">
+            <button className="text-on-surface-variant hover:text-primary transition-colors p-2 hidden md:block">
               <MessageSquare className="w-5 h-5" />
             </button>
 
-
+            <button 
+              onClick={() => setIsDarkMode(!isDarkMode)} 
+              className="text-on-surface-variant hover:text-primary transition-colors p-2"
+              title="Toggle Dark Mode"
+            >
+              {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+            </button>
 
             <div className="relative">
               <button 
@@ -187,9 +207,18 @@ export default function Navbar({ user, onLogout, onOpenSettings, onUserUpdate })
             </div>
           </>
         ) : (
-          <Link to="/login" className="bg-primary text-on-primary px-4 py-2 rounded-lg text-sm font-medium hover:opacity-90 transition-all">
-            Log In
-          </Link>
+          <>
+            <button 
+              onClick={() => setIsDarkMode(!isDarkMode)} 
+              className="text-on-surface-variant hover:text-primary transition-colors p-2 hidden md:block"
+              title="Toggle Dark Mode"
+            >
+              {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+            </button>
+            <Link to="/login" className="bg-primary text-on-primary px-4 py-2 rounded-lg text-sm font-medium hover:opacity-90 transition-all">
+              Log In
+            </Link>
+          </>
         )}
       </div>
 
