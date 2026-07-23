@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, Filter, Star, Calendar, DollarSign, Clock, CheckCircle, AlertCircle, RefreshCw, ChevronDown, CheckCircle2, UserCheck } from 'lucide-react';
 import { providerService, bookingService, userService } from '../services/api';
+import socket from '../services/socket';
 import BookingModal from '../components/BookingModal';
 import ChatModal from '../components/ChatModal';
 import ReviewModal from '../components/ReviewModal';
@@ -142,6 +143,23 @@ export default function ClientDashboard({ user, onUserUpdate }) {
   useEffect(() => {
     setLoading(true);
     fetchBookings().finally(() => setLoading(false));
+
+    const handleBookingUpdate = (data) => {
+      console.log('Booking update received:', data);
+      fetchBookings();
+      // Optionally update wallet if relevant
+      if (onUserUpdate) {
+        userService.getProfile().then(profile => {
+          onUserUpdate({ wallet_balance: profile.user.wallet_balance });
+        }).catch(err => console.error(err));
+      }
+    };
+
+    socket.on('booking_updated', handleBookingUpdate);
+
+    return () => {
+      socket.off('booking_updated', handleBookingUpdate);
+    };
   }, []); // Only fetch bookings once on mount
 
   useEffect(() => {
