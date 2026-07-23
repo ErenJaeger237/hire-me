@@ -5,6 +5,7 @@ import { bookingService } from '../services/api';
 export default function BookingModal({ provider, isOpen, onClose, onSuccess }) {
   const [jobDate, setJobDate] = useState('');
   const [jobTime, setJobTime] = useState('');
+  const [hoursInput, setHoursInput] = useState('1');
   const [hours, setHours] = useState(1);
   const [description, setDescription] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -136,8 +137,12 @@ export default function BookingModal({ provider, isOpen, onClose, onSuccess }) {
                   type="number"
                   min="1"
                   max="100"
-                  value={hours}
-                  onChange={(e) => setHours(Math.max(1, parseInt(e.target.value) || 1))}
+                  value={hoursInput}
+                  onChange={(e) => {
+                    setHoursInput(e.target.value);
+                    const val = parseInt(e.target.value, 10);
+                    if (!isNaN(val) && val >= 1) setHours(val);
+                  }}
                   className="w-full bg-surface-bright border border-outline rounded-lg p-3 pl-4 focus:ring-2 focus:ring-primary focus:border-primary outline-none text-base"
                 />
                 <p className="text-xs text-on-surface-variant">

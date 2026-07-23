@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Clock, CheckCircle2, XCircle, Award, Calendar, DollarSign, RefreshCw, AlertCircle, MessageSquare, Star, Loader2 } from 'lucide-react';
 import { bookingService } from '../services/api';
+import { userService } from '../services/api';
 import ChatModal from '../components/ChatModal';
 
-export default function ProviderDashboard({ user }) {
+export default function ProviderDashboard({ user, onUserUpdate }) {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [actionError, setActionError] = useState('');
@@ -18,6 +19,12 @@ export default function ProviderDashboard({ user }) {
     try {
       const data = await bookingService.getBookings();
       setBookings(data.bookings || data);
+      
+      if (onUserUpdate) {
+        userService.getProfile().then(profile => {
+          onUserUpdate({ wallet_balance: profile.user.wallet_balance });
+        }).catch(err => console.error(err));
+      }
     } catch (err) {
       console.error('Failed to fetch provider bookings:', err);
       setActionError('Could not load incoming job requests.');
