@@ -19,7 +19,11 @@ class AdminService {
       include: [{ model: ProviderProfile, as: 'provider', attributes: ['hourly_rate'] }]
     });
     const totalProcessedVolume = completedBookingsList.reduce((sum, b) => sum + (Number(b.provider.hourly_rate) * Number(b.estimated_hours || 1)), 0);
-    const platformRevenue = totalProcessedVolume * 0.05; // 5% fee assumption for now
+    
+    // Calculate actual collected revenue from transactions
+    const { Transaction } = require('../models');
+    const revenueSum = await Transaction.sum('amount', { where: { type: 'PLATFORM_FEE' } });
+    const platformRevenue = revenueSum || 0;
     
     return {
       totalUsers,

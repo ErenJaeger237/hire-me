@@ -152,17 +152,29 @@ class BookingService {
           reference: `REFUND_${booking.id}`
         }, { transaction: t });
       } else if (status === 'COMPLETED') {
-        // Pay provider
+        // Pay provider (95% payout, 5% platform fee)
+        const platformFee = bookingFee * 0.05;
+        const providerPayout = bookingFee - platformFee;
+
         const providerUser = await User.findByPk(booking.provider.user_id, { transaction: t });
-        providerUser.wallet_balance = Number(providerUser.wallet_balance || 0) + bookingFee;
+        providerUser.wallet_balance = Number(providerUser.wallet_balance || 0) + providerPayout;
         await providerUser.save({ transaction: t });
 
         await Transaction.create({
           user_id: providerUser.id,
-          amount: bookingFee,
+          amount: providerPayout,
           type: 'PAYMENT_RECEIVED',
           status: 'COMPLETED',
           reference: `PAYMENT_${booking.id}`
+        }, { transaction: t });
+
+        // Record platform fee (associated with the client or provider? Let's use the provider's ID to keep the books balanced)
+        await Transaction.create({
+          user_id: providerUser.id,
+          amount: platformFee,
+          type: 'PLATFORM_FEE',
+          status: 'COMPLETED',
+          reference: `FEE_${booking.id}`
         }, { transaction: t });
       }
 

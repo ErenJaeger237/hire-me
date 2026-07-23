@@ -18,7 +18,7 @@ Transaction.init({
     allowNull: false,
   },
   type: {
-    type: DataTypes.ENUM('TOP_UP', 'ESCROW_HOLD', 'ESCROW_REFUND', 'PAYMENT_RECEIVED'),
+    type: DataTypes.ENUM('TOP_UP', 'ESCROW_HOLD', 'ESCROW_REFUND', 'PAYMENT_RECEIVED', 'PLATFORM_FEE'),
     allowNull: false,
   },
   status: {
