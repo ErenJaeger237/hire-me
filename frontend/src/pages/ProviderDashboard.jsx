@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Clock, CheckCircle2, XCircle, Award, Calendar, DollarSign, RefreshCw, AlertCircle, MessageSquare, Star, Loader2 } from 'lucide-react';
+import { Clock, CheckCircle2, XCircle, Award, Calendar, DollarSign, RefreshCw, AlertCircle, MessageSquare, Star, Loader2, BarChart2 } from 'lucide-react';
 import { bookingService } from '../services/api';
 import { userService } from '../services/api';
 import ChatModal from '../components/ChatModal';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 
 export default function ProviderDashboard({ user, onUserUpdate }) {
   const [bookings, setBookings] = useState([]);
@@ -60,29 +61,56 @@ export default function ProviderDashboard({ user, onUserUpdate }) {
   const activeJobs = bookings.filter((b) => b.status === 'ACCEPTED');
   const completedJobs = bookings.filter((b) => b.status === 'COMPLETED');
 
+  const chartData = [
+    { name: 'Pending', count: pendingJobs.length, color: '#f59e0b' },
+    { name: 'Active', count: activeJobs.length, color: '#0ea5e9' },
+    { name: 'Completed', count: completedJobs.length, color: '#10b981' }
+  ];
+
   return (
     <div className="max-w-7xl mx-auto px-6 py-8 space-y-8">
       {/* Top Banner */}
-      <div className="glass-card rounded-3xl p-8 border border-slate-200 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 bg-gradient-to-r from-purple-50 via-white to-indigo-50">
+      <div className="glass-card rounded-3xl p-8 border border-outline flex flex-col md:flex-row items-start md:items-center justify-between gap-6 bg-surface-bright">
         <div>
-          <div className="text-xs uppercase font-bold text-purple-600 tracking-wider mb-1">Provider Workbench</div>
-          <h2 className="text-3xl font-extrabold text-slate-900">Welcome back, {user.name}</h2>
-          <p className="text-slate-600 text-sm mt-1">Manage incoming job requests, accept bookings, and complete assignments.</p>
+          <div className="text-xs uppercase font-bold text-primary tracking-wider mb-1">Provider Workbench</div>
+          <h2 className="text-3xl font-extrabold text-on-surface">Welcome back, {user.name}</h2>
+          <p className="text-on-surface-variant text-sm mt-1">Manage incoming job requests, accept bookings, and view your analytics.</p>
         </div>
 
         <button
           onClick={fetchProviderBookings}
-          className="px-4 py-2.5 rounded-xl bg-white hover:bg-slate-50 text-slate-700 hover:text-slate-900 text-xs font-semibold flex items-center gap-2 border border-slate-200 transition-all shadow-sm"
+          className="px-4 py-2.5 rounded-xl bg-surface hover:bg-surface-container text-on-surface text-xs font-semibold flex items-center gap-2 border border-outline transition-all shadow-sm"
         >
           <RefreshCw className="w-3.5 h-3.5" /> Sync Jobs
         </button>
       </div>
 
       {actionError && (
-        <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-600 text-sm font-medium flex items-center gap-2 shadow-sm">
+        <div className="p-4 rounded-2xl bg-error/10 border border-error/20 text-error text-sm font-medium flex items-center gap-2 shadow-sm">
           <AlertCircle className="w-4 h-4" /> {actionError}
         </div>
       )}
+
+      {/* Analytics Chart */}
+      <div className="glass-card rounded-3xl p-6 border border-outline shadow-sm bg-surface-bright">
+        <h3 className="text-lg font-bold text-on-surface mb-4 flex items-center gap-2">
+          <BarChart2 className="w-5 h-5 text-primary" /> Job Status Analytics
+        </h3>
+        <div className="h-64 w-full">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+              <XAxis dataKey="name" stroke="var(--color-outline-variant)" fontSize={12} tickLine={false} axisLine={false} />
+              <YAxis stroke="var(--color-outline-variant)" fontSize={12} tickLine={false} axisLine={false} allowDecimals={false} />
+              <Tooltip cursor={{fill: 'var(--color-surface-container)'}} contentStyle={{ borderRadius: '12px', border: '1px solid var(--color-outline)', backgroundColor: 'var(--color-surface-bright)', color: 'var(--color-on-surface)' }} />
+              <Bar dataKey="count" radius={[6, 6, 0, 0]} maxBarSize={60}>
+                {chartData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={entry.color} />
+                ))}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
 
       {/* Kanban Job Board */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
