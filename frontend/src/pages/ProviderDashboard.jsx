@@ -308,7 +308,6 @@ export default function ProviderDashboard({ user, onUserUpdate }) {
               ))
             )}
           </div>
-          </div>
         </div>
       </div>
       </>
