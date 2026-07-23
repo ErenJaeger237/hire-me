@@ -8,12 +8,28 @@ class AdminService {
     const totalBookings = await Booking.count();
     const completedBookings = await Booking.count({ where: { status: 'COMPLETED' } });
     
+    const activeBookingsList = await Booking.findAll({
+      where: { status: ['PENDING', 'ACCEPTED'] },
+      include: [{ model: ProviderProfile, as: 'provider', attributes: ['hourly_rate'] }]
+    });
+    const currentEscrow = activeBookingsList.reduce((sum, b) => sum + (Number(b.provider.hourly_rate) * Number(b.estimated_hours || 1)), 0);
+
+    const completedBookingsList = await Booking.findAll({
+      where: { status: 'COMPLETED' },
+      include: [{ model: ProviderProfile, as: 'provider', attributes: ['hourly_rate'] }]
+    });
+    const totalProcessedVolume = completedBookingsList.reduce((sum, b) => sum + (Number(b.provider.hourly_rate) * Number(b.estimated_hours || 1)), 0);
+    const platformRevenue = totalProcessedVolume * 0.05; // 5% fee assumption for now
+    
     return {
       totalUsers,
       totalClients,
       totalProviders,
       totalBookings,
       completedBookings,
+      currentEscrow,
+      totalProcessedVolume,
+      platformRevenue
     };
   }
 
