@@ -14,6 +14,7 @@ const setupSwagger = require('./config/swagger');
 const bcrypt = require('bcryptjs');
 
 const app = express();
+app.set('trust proxy', 1); // Crucial for Render deployment to correctly resolve https in req.protocol
 const http = require('http');
 const { Server } = require('socket.io');
 const server = http.createServer(app);
