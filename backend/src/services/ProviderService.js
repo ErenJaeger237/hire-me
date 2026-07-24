@@ -1,6 +1,5 @@
 const { Op } = require('sequelize');
-const { User, ProviderProfile, Booking } = require('../models');
-
+const { User, ProviderProfile, Booking, Transaction } = require('../models');
 class ProviderService {
   async getProviders({ category, maxPrice, verifiedOnly, lat, lng, page = 1, limit = 20 }) {
     const whereClause = {};
@@ -124,7 +123,7 @@ class ProviderService {
       clientName: b.client ? b.client.name : 'Client',
       clientAvatar: b.client ? b.client.profile_picture_url : null,
       rating: b.rating,
-      comment: b.review_comment,
+      comment: b.review_text,
       date: b.updatedAt
     }));
 
@@ -146,9 +145,6 @@ class ProviderService {
   }
 
   async getProviderEarnings(userId) {
-    const { Transaction, Booking, ProviderProfile } = require('../models');
-    const { Op } = require('sequelize');
-
     // Get provider profile
     const profile = await ProviderProfile.findOne({ where: { user_id: userId } });
     if (!profile) {

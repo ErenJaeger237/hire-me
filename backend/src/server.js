@@ -259,11 +259,12 @@ app.post('/api/users/profile/upload', authenticateToken, imageUpload.single('pro
   try {
     if (!req.file) return res.status(400).json({ error: 'No file uploaded.' });
     
-    // Construct the URL
-    const fileUrl = `http://localhost:${PORT}/uploads/${req.file.filename}`;
+    // Construct the URL dynamically based on the request host
+    const fileUrl = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
     
     // Update the user
     await User.update({ profile_picture_url: fileUrl }, { where: { id: req.user.id } });
+
     
     return res.status(200).json({ profile_picture_url: fileUrl });
   } catch (err) {
@@ -275,7 +276,7 @@ app.post('/api/users/profile/upload', authenticateToken, imageUpload.single('pro
 app.post('/api/users/profile/document', authenticateToken, docUpload.single('verification_doc'), async (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ error: 'No file uploaded.' });
-    const fileUrl = `http://localhost:${PORT}/uploads/${req.file.filename}`;
+    const fileUrl = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
     await ProviderProfile.update({ verification_doc_url: fileUrl }, { where: { user_id: req.user.id } });
     return res.status(200).json({ verification_doc_url: fileUrl });
   } catch (err) {
