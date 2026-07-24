@@ -29,7 +29,7 @@ export default function ProviderDashboard({ user, onUserUpdate }) {
       
       if (onUserUpdate) {
         userService.getProfile().then(profile => {
-          onUserUpdate({ wallet_balance: profile.user.wallet_balance });
+          onUserUpdate({ wallet_balance: profile.wallet_balance });
         }).catch(err => console.error(err));
       }
     } catch (err) {

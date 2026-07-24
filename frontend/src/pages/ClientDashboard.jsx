@@ -133,7 +133,7 @@ export default function ClientDashboard({ user, onUserUpdate }) {
       // Fetch latest profile to update wallet balance in Navbar
       if (onUserUpdate) {
         userService.getProfile().then(profile => {
-          onUserUpdate({ wallet_balance: profile.user.wallet_balance });
+          onUserUpdate({ wallet_balance: profile.wallet_balance });
         }).catch(err => console.error(err));
       }
       setFeedbackMsg(
@@ -166,7 +166,7 @@ export default function ClientDashboard({ user, onUserUpdate }) {
       // Optionally update wallet if relevant
       if (onUserUpdate) {
         userService.getProfile().then(profile => {
-          onUserUpdate({ wallet_balance: profile.user.wallet_balance });
+          onUserUpdate({ wallet_balance: profile.wallet_balance });
         }).catch(err => console.error(err));
       }
     };
@@ -209,7 +209,7 @@ export default function ClientDashboard({ user, onUserUpdate }) {
     fetchBookings();
     if (onUserUpdate) {
       userService.getProfile().then(profile => {
-        onUserUpdate({ wallet_balance: profile.user.wallet_balance });
+        onUserUpdate({ wallet_balance: profile.wallet_balance });
       }).catch(err => console.error(err));
     }
     setFeedbackMsg('Booking request successfully sent!');
